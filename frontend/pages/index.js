@@ -301,7 +301,7 @@ export default function Home() {
           </div>
         )}
       </div>
-      <footer className="mt-8 text-gray-400 text-sm">Made with <span className="text-pink-400">♥</span> by AI</footer>
+      <footer className="mt-8 text-gray-400 text-sm">Made with <span className="text-pink-400">♥</span> by G Karthik</footer>
     </div>
   );
 }
