@@ -1,0 +1,26 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+frontend/.next/
+frontend/.turbo/
+backend/cache/
+backend/uploads/
+
+# Python
+python-parser/venv/
+python-parser/.pytest_cache/
+**/__pycache__/
+**/*.pyc
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Env
+.env
+**/.env

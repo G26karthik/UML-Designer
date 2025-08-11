@@ -1,0 +1,5 @@
+javalang
+requests
+flask
+pytest
+python-dotenv
