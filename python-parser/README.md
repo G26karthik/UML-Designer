@@ -30,8 +30,8 @@ The Python parser is the core analysis engine that extracts class structures, re
 | **Python** | ast | ✅ | ✅ | ✅ | ✅ | ❌ | 🔄 |
 | **C#** | regex | ✅ | 🔄 | ✅ | ✅ | ✅ | 🔄 |
 | **TypeScript** | regex | ✅ | ✅ | ✅ | ✅ | ✅ | 🔄 |
-| **JavaScript** | regex | ✅ | ❌ | ✅ | ✅ | ❌ | 🔄 |
-| **C++** | regex | ✅ | ❌ | ✅ | ✅ | ❌ | 🔄 |
+| **JavaScript** | regex | ✅ | ✅ | ✅ | ✅ | ❌ | 🔄 |
+| **C++** | regex | ✅ | 🔄 | ✅ | ✅ | ❌ | 🔄 |
 | **C** | regex | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
 | **HTML/CSS** | presence | 📊 | ❌ | ❌ | ❌ | ❌ | ❌ |
 
@@ -39,7 +39,7 @@ The Python parser is the core analysis engine that extracts class structures, re
 
 ### **Analysis Capabilities**
 
-#### **Java Analysis** (Most Complete)
+#### **Java Analysis** (Improved)
 ```python
 # Extracts comprehensive information
 {
@@ -48,7 +48,11 @@ The Python parser is the core analysis engine that extracts class structures, re
   "methods": ["createUser", "findUser", "updateUser", "deleteUser"],
   "extends": ["BaseService"],
   "implements": ["UserOperations"],
-  "uses": ["UserValidator", "EmailService"]
+  "uses": ["UserValidator", "EmailService"],
+  "relations": [
+    {"from":"UserService","to":"UserRepository","type":"composition","source":"heuristic"},
+    {"from":"UserService","to":"Logger","type":"uses","source":"heuristic"}
+  ]
 }
 ```
 
@@ -68,10 +72,22 @@ The Python parser is the core analysis engine that extracts class structures, re
 # Includes type information where available
 {
   "class": "ApiClient",
-  "fields": ["baseUrl: string", "timeout: number"],
+  "fields": ["baseUrl: string", "timeout: number", "http: HttpClient"],
   "methods": ["get", "post", "put", "delete"],
   "extends": ["HttpClient"],
   "implements": ["IApiClient"]
+}
+```
+
+#### **JavaScript Analysis**
+```python
+{
+  "class": "Cart",
+  "fields": ["items", "api: ApiClient"],
+  "methods": ["add", "remove", "checkout"],
+  "relations": [
+    {"from":"Cart","to":"ApiClient","type":"composition","source":"heuristic"}
+  ]
 }
 ```
 
@@ -246,9 +262,9 @@ def merge_schemas(ast_obj, ai_obj):
 - **`extends`**: Class inheritance (A extends B)
 - **`implements`**: Interface implementation (A implements B)
 - **`uses`**: Dependency relationship (A uses B)
-- **`aggregates`**: Weak ownership (A has B, B can exist independently)
-- **`composes`**: Strong ownership (A owns B, B cannot exist without A)
-- **`associates`**: General association relationship
+- **`aggregation`**: Weak ownership (A has B, B can exist independently)
+- **`composition`**: Strong ownership (A owns B, B cannot exist without A)
+- **`association`**: General association relationship
 
 ### **Source Provenance**
 - **`heuristic`**: Detected by static code analysis
@@ -372,6 +388,9 @@ pip install pytest pytest-cov
 
 # Run all tests
 pytest -v
+
+# Current suite count
+# 12 tests covering Python, TypeScript/JavaScript, Java relations and endpoints
 
 # Run with coverage
 pytest --cov=. --cov-report=html
