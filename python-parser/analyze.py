@@ -170,24 +170,42 @@ def _analyze_python_file(full_path, package_path, result, class_info, all_class_
 
                 for item in node.body:
                     if isinstance(item, ast.AnnAssign) and isinstance(item.target, ast.Name):
-                        # Type annotations
+                        # Class-level annotated attribute
                         type_hint = _get_type_annotation(item.annotation)
                         fields.add(f"{item.target.id}: {type_hint}")
                     elif isinstance(item, ast.Assign):
-                        # Regular assignments
+                        # Class-level assignments
                         for target in item.targets:
                             if isinstance(target, ast.Name):
                                 fields.add(target.id)
                     elif isinstance(item, ast.FunctionDef):
                         methods.add(item.name)
 
-                        # Analyze method body for compositions and dependencies
+                        # Analyze method body for instance attributes, compositions, and dependencies
                         for subnode in ast.walk(item):
+                            # self.<attr> annotated: capture as field with type when possible
+                            if isinstance(subnode, ast.AnnAssign) and isinstance(subnode.target, ast.Attribute):
+                                if isinstance(subnode.target.value, ast.Name) and subnode.target.value.id == 'self':
+                                    type_hint = _get_type_annotation(subnode.annotation)
+                                    fields.add(f"{subnode.target.attr}: {type_hint}")
+                            # self.<attr> = ... assignments captured as fields
+                            if isinstance(subnode, ast.Assign):
+                                for tgt in subnode.targets:
+                                    if isinstance(tgt, ast.Attribute) and isinstance(tgt.value, ast.Name) and tgt.value.id == 'self':
+                                        # add instance attribute name
+                                        fields.add(tgt.attr)
+                                        # detect composition when assigning instance of known class to self.attr
+                                        if isinstance(subnode.value, ast.Call):
+                                            callee = subnode.value.func
+                                            callee_name = callee.id if isinstance(callee, ast.Name) else None
+                                            if callee_name and callee_name in all_class_names and callee_name != class_name:
+                                                compositions.add(callee_name)
+                            # Direct instantiation: treat as composition only if known class
                             if isinstance(subnode, ast.Call) and isinstance(subnode.func, ast.Name):
-                                # Direct instantiation
-                                compositions.add(subnode.func.id)
-                            elif isinstance(subnode, ast.Name) and subnode.id in all_class_names:
-                                # Usage of other classes
+                                if subnode.func.id in all_class_names and subnode.func.id != class_name:
+                                    compositions.add(subnode.func.id)
+                            # Usage of other known classes
+                            if isinstance(subnode, ast.Name) and subnode.id in all_class_names and subnode.id != class_name:
                                 usage_rels.append({'from': class_name, 'to': subnode.id, 'type': 'uses'})
 
                 # Store class info
@@ -1027,30 +1045,6 @@ def analyze_repo(repo_path, limits=None):
                     })
         # Add more AI population logic for other diagram types as needed
 
-    ai_populate_if_missing(result)
-    # ...existing code for language analysis...
-
-    # Use case and state diagram extraction for Java (after analysis)
-    result['usecases'] = []
-    result['states'] = []
-    for java_class in result.get('java', []):
-        # Use case: treat public methods in controller classes as actions
-        if 'Controller' in java_class['class'] or java_class['class'].endswith('Controller'):
-            for method in java_class['methods']:
-                result['usecases'].append({
-                    'actor': 'User',
-                    'action': method,
-                    'controller': java_class['class']
-                })
-        # State: look for fields that represent state and methods that change state
-        state_fields = [f for f in java_class['fields'] if any(s in f.lower() for s in ['state', 'status', 'mode'])]
-        if state_fields:
-            for method in java_class['methods']:
-                result['states'].append({
-                    'class': java_class['class'],
-                    'state_fields': state_fields,
-                    'action': method
-                })
     """
     Enhanced analysis with consistent parsing across all languages.
     Extracts classes, fields, methods, and relationships with high accuracy.
@@ -1162,6 +1156,9 @@ def analyze_repo(repo_path, limits=None):
         'languages': list(set(info['lang'] for info in class_info.values())),
         'system': _extract_system_name(repo_path)
     }
+
+    # Optional: populate secondary diagram sections if empty
+    ai_populate_if_missing(result)
 
     return result
 def _safe_extract_json(text: str):
