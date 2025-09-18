@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import MermaidDiagram from '../components/MermaidDiagram';
-import axios from 'axios';
+import { apiRequest } from '../utils/config';
 
 export default function PromptToUML() {
 
@@ -22,10 +22,13 @@ export default function PromptToUML() {
     setError('');
     setDiagram('');
     try {
-      // Use debounced prompt for API call
-      const response = await axios.post('/api/uml-from-prompt', { prompt: debouncedPrompt });
+      // Use versioned API helper for consistent routing
+      const data = await apiRequest('/uml-from-prompt', {
+        method: 'POST',
+        body: JSON.stringify({ prompt: debouncedPrompt })
+      });
       // Accept both .diagram and .schema keys for compatibility
-      setDiagram(response.data.diagram || response.data.schema || '');
+      setDiagram(data.diagram || data.schema || '');
     } catch (err) {
       setError('Failed to generate UML diagram.');
     } finally {
