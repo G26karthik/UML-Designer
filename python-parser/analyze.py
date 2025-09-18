@@ -550,6 +550,37 @@ def _analyze_csharp_file(full_path, package_path, result, class_info, all_class_
         using_matches = re.findall(r'using\s+([A-Za-z_][A-Za-z0-9_.]*)\s*;', source)
         imports = set(imp.split('.')[0] for imp in using_matches)
 
+        # Extract interfaces first so implements relations survive relation filtering
+        interface_pattern = r'\b(?:public|private|protected|internal)?\s*(?:partial\s+)?\s*interface\s+([A-Za-z_][A-Za-z0-9_]*)\s*{'
+        for im in re.finditer(interface_pattern, source, re.MULTILINE):
+            iface_name = im.group(1)
+            all_class_names.add(iface_name)
+            iface_content = _extract_class_content(source, im.start())
+            # Basic method names inside interface
+            methods = set()
+            method_pattern = r'\b([A-Za-z_][A-Za-z0-9_]*)\s*\('
+            for mm in re.finditer(method_pattern, iface_content):
+                name = mm.group(1)
+                if name not in ['if', 'for', 'while', 'switch', 'try', 'catch']:
+                    methods.add(name)
+            class_entry = {
+                'class': iface_name,
+                'fields': [],
+                'methods': sorted(list(methods)),
+                'stereotype': 'interface',
+                'abstract': False,
+                'namespace': namespace
+            }
+            result['csharp'].append(class_entry)
+            class_info[iface_name] = {
+                'lang': 'csharp',
+                'fields': [],
+                'methods': list(methods),
+                'bases': [],
+                'stereotype': 'interface',
+                'package': namespace
+            }
+
         # Extract classes
         class_pattern = r'\b(?:public|private|protected|internal)?\s*(?:abstract\s+|sealed\s+|static\s+)?\s*(?:partial\s+)?\s*class\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?::\s*([A-Za-z0-9_\s,<>\.]+))?'
         for match in re.finditer(class_pattern, source, re.MULTILINE):
@@ -564,13 +595,14 @@ def _analyze_csharp_file(full_path, package_path, result, class_info, all_class_
                 for part in base_parts:
                     # Remove access modifiers
                     clean_part = re.sub(r'\b(public|private|protected|internal)\s+', '', part)
-                    base_name = clean_part.split()[0] if clean_part.split() else clean_part
+                    raw_base = clean_part.split()[0] if clean_part.split() else clean_part
+                    base_name = _norm_type_name(raw_base)
                     bases.append(base_name)
 
-                    # Determine relationship type
-                    if 'I' == base_name[0] or 'interface' in clean_part.lower():
+                    # Determine relationship type (interfaces typically start with 'I' in C# or may be explicitly namespaced)
+                    if base_name and (base_name[0] == 'I' or 'interface' in clean_part.lower()):
                         inheritance_rels.append({'from': base_name, 'to': class_name, 'type': 'implements'})
-                    else:
+                    elif base_name:
                         inheritance_rels.append({'from': base_name, 'to': class_name, 'type': 'extends'})
 
             # Extract fields
@@ -583,6 +615,7 @@ def _analyze_csharp_file(full_path, package_path, result, class_info, all_class_
 
                 # Composition candidate; validated at relation build stage
                 clean_type = re.sub(r'<[^>]*>', '', field_type).strip()
+                clean_type = clean_type.split('.')[-1]
                 if clean_type and clean_type != class_name:
                     composition_rels.append({'from': class_name, 'to': clean_type, 'type': 'composition'})
 
@@ -593,6 +626,40 @@ def _analyze_csharp_file(full_path, package_path, result, class_info, all_class_
                 method_name = method_match.group(1)
                 if method_name not in ['if', 'for', 'while', 'switch', 'try', 'catch']:  # Filter keywords
                     methods.add(method_name)
+
+            # Enrich with class body scan for compositions/usages and instance fields
+            class_content = _extract_class_content(source, match.start())
+            # this.field = new Type()
+            for m in re.finditer(r'\bthis\.([A-Za-z_][A-Za-z0-9_]*)\s*=\s*new\s+([A-Za-z_][A-Za-z0-9_.]*)\s*\(', class_content):
+                fld, rhs = m.group(1), m.group(2)
+                # add field with inferred type
+                fields.add(f"{fld}: {rhs}")
+                rhs_clean = re.sub(r'<[^>]*>', '', rhs).split('.')[-1]
+                if rhs_clean and rhs_clean != class_name:
+                    composition_rels.append({'from': class_name, 'to': rhs_clean, 'type': 'composition'})
+            # this.field = expr; capture field name if not present
+            for m in re.finditer(r'\bthis\.([A-Za-z_][A-Za-z0-9_]*)\s*=\s*[^;]+;', class_content):
+                fld = m.group(1)
+                if not any(str(f).startswith(fld + ":") or str(f) == fld for f in fields):
+                    fields.add(fld)
+            # new Type() anywhere in class
+            for m in re.finditer(r'\bnew\s+([A-Za-z_][A-Za-z0-9_.]*)\s*\(', class_content):
+                t = m.group(1)
+                t_clean = re.sub(r'<[^>]*>', '', t).split('.')[-1]
+                if t_clean and t_clean != class_name:
+                    usage_rels.append({'from': class_name, 'to': t_clean, 'type': 'uses'})
+            # Static calls: Type.Method(
+            for m in re.finditer(r'\b([A-Za-z_][A-Za-z0-9_.]*)\s*\.\s*[A-Za-z_][A-Za-z0-9_]*\s*\(', class_content):
+                q = m.group(1)
+                q_clean = q.split('.')[-1]
+                if q_clean and q_clean != class_name:
+                    usage_rels.append({'from': class_name, 'to': q_clean, 'type': 'uses'})
+            # Local variable declarations: Type var = ...; or Type var;
+            for m in re.finditer(r'\b([A-Za-z_][A-Za-z0-9_.<>\[\]]*)\s+[A-Za-z_][A-Za-z0-9_]*\s*(?:[=;])', class_content):
+                t = m.group(1)
+                t_clean = re.sub(r'<[^>]*>', '', t).split('.')[-1]
+                if t_clean and t_clean != class_name:
+                    usage_rels.append({'from': class_name, 'to': t_clean, 'type': 'uses'})
 
             # Determine stereotype
             is_abstract = 'abstract' in match.group(0)
@@ -888,12 +955,24 @@ def _analyze_cpp_file(full_path, package_path, result, class_info, all_class_nam
             fields = set()
             methods = set()
 
-            # Fields
-            field_pattern = r'\b(?:[A-Za-z_][A-Za-z0-9_<>\[\]\s]*)\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?:\[[^\]]*\])?\s*;'
-            for field_match in re.finditer(field_pattern, type_content):
-                field_name = field_match.group(1)
-                if field_name not in ['if', 'for', 'while', 'return']:  # Filter keywords
-                    fields.add(field_name)
+            # Fields (capture type and name). Handle pointers/references like Engine* ptr; const Engine& ref;
+            field_decl_pattern = r'\b([A-Za-z_][A-Za-z0-9_:<>\[\]\s]*?)\s*[*&]*\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?:\[[^\]]*\])?\s*;'
+            for field_match in re.finditer(field_decl_pattern, type_content):
+                field_type = field_match.group(1).strip()
+                field_name = field_match.group(2)
+                if field_name not in ['if', 'for', 'while', 'return']:
+                    # include basic typed field
+                    fields.add(f"{field_name}: {field_type}")
+                    # heuristic composition candidate if type matches a known class (validated at relation build)
+                    t_clean = re.sub(r'<[^>]*>', '', field_type)  # strip templates
+                    t_clean = t_clean.replace('*', '').replace('&', '')  # strip ptr/ref
+                    t_clean = re.sub(r'\b(const|volatile)\b', '', t_clean)
+                    t_clean = t_clean.strip()
+                    if '::' in t_clean:
+                        t_clean = t_clean.split('::')[-1]
+                    t_clean = t_clean.split()[-1] if t_clean.split() else t_clean
+                    if t_clean and t_clean != class_name:
+                        composition_rels.append({'from': class_name, 'to': t_clean, 'type': 'composition'})
 
             # Methods
             method_pattern = r'\b[A-Za-z_][A-Za-z0-9_<>\[\]\s]*\s+([A-Za-z_][A-Za-z0-9_]*)\s*\('
@@ -901,6 +980,18 @@ def _analyze_cpp_file(full_path, package_path, result, class_info, all_class_nam
                 method_name = method_match.group(1)
                 if method_name not in ['if', 'for', 'while', 'return']:
                     methods.add(method_name)
+
+            # Heuristics for uses inside class content
+            # new Type(...)
+            for m in re.finditer(r'\bnew\s+([A-Za-z_][A-Za-z0-9_:]*)\s*\(', type_content):
+                t = m.group(1).split('::')[-1]
+                if t and t != class_name:
+                    usage_rels.append({'from': class_name, 'to': t, 'type': 'uses'})
+            # static calls Type::Method(...)
+            for m in re.finditer(r'\b([A-Za-z_][A-Za-z0-9_:]*)::[A-Za-z_][A-Za-z0-9_]*\s*\(', type_content):
+                t = m.group(1).split('::')[-1]
+                if t and t != class_name:
+                    usage_rels.append({'from': class_name, 'to': t, 'type': 'uses'})
 
             stereotype = 'struct' if type_kind == 'struct' else 'class'
 
@@ -1220,7 +1311,7 @@ def analyze_repo(repo_path, limits=None):
         elif file.endswith(('.ts', '.tsx')):
             _analyze_typescript_file(full, package_path, result, class_info, all_class_names,
                                    inheritance_rels, composition_rels, dependency_rels, usage_rels, ts_modules)
-        elif file.endswith(('.cpp', '.hpp', '.h', '.cc', '.cxx', '.hh', '.hxx')):
+        elif file.endswith(('.cpp', '.hpp', '.h', '.cc', '.cxx', '.hh', '.hxx', '.c')):
             _analyze_cpp_file(full, package_path, result, class_info, all_class_names,
                             inheritance_rels, composition_rels, dependency_rels, usage_rels)
 
