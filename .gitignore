@@ -6,14 +6,27 @@ Thumbs.db
 node_modules/
 frontend/.next/
 frontend/.turbo/
+frontend/out/
 backend/cache/
 backend/uploads/
+backend/logs/
+
+# Coverage
+coverage/
+frontend/coverage/
+backend/coverage/
+python-parser/.coverage
+python-parser/htmlcov/
 
 # Python
 python-parser/venv/
 python-parser/.pytest_cache/
 **/__pycache__/
 **/*.pyc
+
+# PM2
+~/.pm2/
+pm2.log
 
 # Logs
 *.log
@@ -24,3 +37,5 @@ yarn-error.log*
 # Env
 .env
 **/.env
+.env.*
+**/.env.*

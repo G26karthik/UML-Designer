@@ -14,7 +14,7 @@ describe('Caching behavior', () => {
   });
 
   it('returns cached result for the same URL without calling parser again', async () => {
-    const url = 'https://example.com/foo.git';
+    const url = 'https://github.com/testuser/testrepo';
 
   post.mockResolvedValueOnce({
       status: 200,

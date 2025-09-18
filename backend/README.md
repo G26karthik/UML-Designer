@@ -4,6 +4,10 @@
 
 The backend serves as an intelligent proxy between the frontend and Python parser, providing caching, security, and performance optimizations for the UML Designer AI application.
 
+Note on routing and environments:
+- Dev/Test: endpoints are mounted unversioned at `/` (Jest tests expect this)
+- Production: endpoints are versioned under `/api/v1` by default; you can enable legacy unversioned routes with `ENABLE_LEGACY_ROUTES=true`
+
 ## 🎯 Purpose & Architecture
 
 ### **Core Responsibilities**
@@ -50,6 +54,10 @@ GitHub URL → Cache Key Generation → Memory Check → Disk Check → Python P
 
 ### **POST /analyze**
 Analyze a GitHub repository or uploaded ZIP file.
+
+Routes:
+- Dev/Test: `POST /analyze`
+- Production: `POST /api/v1/analyze` (or `/analyze` if `ENABLE_LEGACY_ROUTES=true`)
 
 #### **GitHub Repository Analysis**
 ```bash
@@ -104,6 +112,10 @@ curl -X POST http://localhost:3001/analyze \
 ### **GET /health**
 Health check endpoint for monitoring and load balancers.
 
+Routes:
+- Dev/Test: `GET /health`
+- Production: `GET /api/v1/health` (or `/health` if legacy routes enabled)
+
 ```bash
 curl http://localhost:3001/health
 ```
@@ -123,6 +135,20 @@ curl http://localhost:3001/health
 }
 ```
 
+### **Admin Endpoints**
+Token-guarded cache administration endpoints. Disabled if `ADMIN_TOKEN` is not set.
+
+- `GET /api/v1/admin/cache/info` → Stats on memory/disk cache and last purge time
+- `POST /api/v1/admin/cache/purge` → Clears memory cache and best-effort purges disk cache
+
+Headers: `X-Admin-Token: <ADMIN_TOKEN>`
+
+### **Upload Rules & Security**
+- Only `.zip` files are accepted for file uploads
+- MIME types allowed: `application/zip`, `application/x-zip-compressed`, `multipart/x-zip`, `application/octet-stream`
+- Uploaded file must pass a ZIP magic-bytes check (begins with `PK\x03`/`PK\x05`)
+- Upload directory is configurable via `UPLOAD_DIR` and is created if missing
+
 ## ⚙️ Configuration
 
 ### **Environment Variables**
@@ -138,7 +164,13 @@ curl http://localhost:3001/health
 | `DISK_CACHE_TTL_MS` | `86400000` | Disk cache TTL (24 hours) |
 | `MAX_CACHE_ENTRIES` | `200` | Max memory cache entries |
 | `DISK_CACHE_DIR` | `./cache` | Disk cache directory |
-| `ALLOWED_ORIGINS` | `*` | CORS allowed origins (comma-separated) |
+| `ALLOWED_ORIGINS` | `http://localhost:3000,http://localhost:3001` | CORS allowed origins (comma-separated) |
+| `CORS_CREDENTIALS` | `false` | Whether to allow credentials in CORS |
+| `UPLOAD_DIR` | `uploads` | Directory for uploaded ZIPs |
+| `ADMIN_TOKEN` | _(unset)_ | Enables admin endpoints when set; required header `X-Admin-Token` |
+| `RATE_WINDOW_MS` | `300000` | Rate limit window (ms) applied to `/analyze` in production |
+| `RATE_MAX` | `60` | Max requests per IP per window (for `/analyze`) |
+| `ENABLE_LEGACY_ROUTES` | `false` | Mount API router at `/` in addition to `/api/v1` in production |
 
 ### **Example Configuration**
 
@@ -320,17 +352,19 @@ tail -f logs/app.log | grep "cache"
 ### **Project Structure**
 ```
 backend/
-├── index.js            # Main application entry point
+├── index.js            # Dev/Test entrypoint (unversioned routes)
+├── server.js           # Production entrypoint (versioned routes under /api/v1)
 ├── routes/             # API route handlers
-│   ├── analyze.js      # Analysis endpoint logic
-│   └── health.js       # Health check logic
+│   └── api.js          # Central API router (analyze, health, admin)
 ├── middleware/         # Express middleware
 │   ├── cache.js        # Caching middleware
 │   ├── cors.js         # CORS configuration
 │   └── validation.js   # Request validation
 ├── utils/              # Utility functions
-│   ├── cache-manager.js # Cache implementation
-│   └── file-utils.js   # File handling utilities
+│   ├── logger.js       # Production logging
+│   ├── testLogger.js   # Jest-friendly logger
+│   ├── monitoring.js   # Metrics and health
+│   └── security.js     # CORS, URL and upload validation helpers
 ├── __tests__/          # Test suite
 ├── package.json        # Dependencies and scripts
 └── README.md          # This file

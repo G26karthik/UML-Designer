@@ -2,24 +2,28 @@
 
 🎨 **Next.js React Application for UML Diagram Visualization**
 
-The frontend provides an intuitive, responsive web interface for generating and viewing UML class diagrams from code repositories. Built with modern React patterns and optimized for performance.
+The frontend provides an intuitive, responsive web interface for generating and viewing UML class diagrams from code repositories. Built with modern React patterns and optimized for static deployment on GitHub Pages.
 
 ## 🎯 Purpose & Architecture
 
 ### **Core Responsibilities**
 - **User Interface**: Clean, intuitive design for repository input and diagram viewing
+- **Client-Side Analysis**: Direct GitHub API integration for code analysis
 - **Diagram Rendering**: Client-side Mermaid.js integration for UML visualization
 - **Interactive Controls**: Dynamic filtering, customization, and export options
 - **State Management**: Efficient React state handling for complex diagram data
 - **Performance**: Optimized rendering and responsive design
+- **Caching**: Browser localStorage for analysis result caching
 
 ### **Technology Stack**
-- **Framework**: Next.js 13+ with App Router
+- **Framework**: Next.js 14+ with static export
 - **UI Library**: React 18+ with Hooks
 - **Styling**: Tailwind CSS with custom design system
 - **Diagram Rendering**: Mermaid.js (client-side only)
-- **HTTP Client**: Axios for API communication
-- **Build Tools**: Next.js built-in bundling and optimization
+- **Code Analysis**: Custom JavaScript-based multi-language parser
+- **API Integration**: Direct GitHub API v3 for repository access
+- **Caching**: Browser localStorage for performance optimization
+- **Build Tools**: Next.js built-in bundling and static export
 
 ## 🎨 Features & Components
 
@@ -39,6 +43,19 @@ const MermaidDiagram = dynamic(() => import('../components/MermaidDiagram'), {
 // - Error boundaries and fallbacks
 // - SVG export capabilities
 // - Real-time diagram updates
+```
+
+#### **ClientCodeAnalyzer Component**
+```javascript
+// Client-side code analysis engine
+import { ClientCodeAnalyzer } from '../components/ClientCodeAnalyzer';
+
+// Features:
+// - Multi-language support (JavaScript, TypeScript, Python, Java, C#, C++)
+// - Direct GitHub API integration
+// - Regex-based parsing for performance
+// - Local caching for repeated analyses
+// - Error handling and rate limit management
 ```
 
 #### **Main Application Interface**
@@ -111,10 +128,12 @@ const AppState = {
 ### **Data Processing Pipeline**
 ```
 User Input (GitHub URL)
-    ↓ Form Submission
-API Request to Backend (/analyze)
-    ↓ Response Processing
-Schema Validation & Storage
+    ↓ Form Validation
+GitHub API Repository Access
+    ↓ File Content Fetching
+Client-Side Code Analysis
+    ↓ Multi-Language Parsing
+Schema Generation & Storage
     ↓ Mermaid Generation
 JSON to Mermaid Conversion
     ↓ Client Rendering
@@ -332,7 +351,16 @@ npm run type-check
 
 ### **Deployment Options**
 
-#### **Vercel (Recommended)**
+#### **GitHub Pages (Current)**
+```bash
+# Build static export
+npm run build
+
+# Deploy via GitHub Actions
+# Automatic deployment on push to main branch
+```
+
+#### **Vercel (Alternative)**
 ```bash
 # Install Vercel CLI
 npm i -g vercel
@@ -344,7 +372,7 @@ vercel --prod
 #### **Static Export**
 ```bash
 # Build static export
-npm run build && npm run export
+npm run build
 
 # Deploy to any static hosting
 # (Netlify, GitHub Pages, S3, etc.)
@@ -496,34 +524,39 @@ const analyzeRepository = async (githubUrl) => {
 
 ## 🔄 Integration Points
 
-### **Backend API Integration**
+### **GitHub API Integration**
 ```javascript
-// API service layer
-class UMLAnalysisService {
-  constructor(baseURL) {
-    this.api = axios.create({
-      baseURL,
-      timeout: 120000,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+// Client-side GitHub API service
+class GitHubAPIService {
+  constructor() {
+    this.baseURL = 'https://api.github.com';
+    this.cache = new Map();
   }
   
-  async analyzeRepository(githubUrl) {
-    const response = await this.api.post('/analyze', { githubUrl });
-    return response.data;
+  async getRepositoryContents(owner, repo) {
+    const cacheKey = `${owner}/${repo}`;
+    if (this.cache.has(cacheKey)) {
+      return this.cache.get(cacheKey);
+    }
+    
+    const response = await fetch(`${this.baseURL}/repos/${owner}/${repo}/contents`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch repository contents');
+    }
+    
+    const data = await response.json();
+    this.cache.set(cacheKey, data);
+    return data;
   }
   
-  async uploadRepository(file) {
-    const formData = new FormData();
-    formData.append('repoZip', file);
+  async getFileContent(owner, repo, path) {
+    const response = await fetch(`${this.baseURL}/repos/${owner}/${repo}/contents/${path}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch file content');
+    }
     
-    const response = await this.api.post('/analyze', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    
-    return response.data;
+    const data = await response.json();
+    return atob(data.content); // Decode base64 content
   }
 }
 ```

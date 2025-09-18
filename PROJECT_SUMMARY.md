@@ -1,4 +1,102 @@
-# UML Designer AI - Project Summary
+# UML Designer AI – Project Summary
+
+## 🚦 Quick Start for Non-Technical Users
+
+**Generate UML Diagrams in 3 Easy Steps:**
+
+1. **Open the Web App:**
+   - Visit the UML Designer AI website or launch the application.
+
+2. **Enter Your System Description:**
+   - Paste a GitHub repository link **or** simply type a description of your system in plain English (e.g., "A library system with books, members, and loans. Members can borrow books.").
+
+3. **View and Download Diagrams:**
+   - Instantly see a visual UML diagram of your system architecture.
+   - Download, copy, or share the diagram for documentation or presentations.
+
+**No coding required!** The app automatically analyzes your input and creates professional diagrams for you.
+
+---
+
+## 🖼️ Sample UML Diagram Outputs
+
+### Example 1: Library System (English Prompt)
+**Prompt:**
+> "A library system with books, members, and loans. Members can borrow books."
+
+**Generated Diagram:**
+```mermaid
+classDiagram
+  class Book {
+    title: String
+    author: String
+    isbn: String
+    borrow()
+    return()
+  }
+  class Member {
+    name: String
+    memberId: String
+    borrowBook()
+    returnBook()
+  }
+  class Loan {
+    book: Book
+    member: Member
+    dueDate: Date
+    renew()
+    close()
+  }
+  Member ..> Book : uses
+  Loan *-- Book : composition
+  Loan *-- Member : composition
+```
+
+### Example 2: E-Commerce Platform (English Prompt)
+**Prompt:**
+> "An e-commerce platform with products, customers, orders, and payment processing."
+
+**Generated Diagram:**
+```mermaid
+classDiagram
+  class Product {
+    name: String
+    price: Float
+    sku: String
+    updateStock()
+  }
+  class Customer {
+    name: String
+    email: String
+    placeOrder()
+  }
+  class Order {
+    customer: Customer
+    products: List[Product]
+    total: Float
+    addProduct()
+    checkout()
+  }
+  class PaymentProcessor {
+    provider: String
+    processPayment()
+  }
+  Order o-- Product : aggregation
+  Order --> Customer : association
+  Order ..> PaymentProcessor : uses
+```
+
+This project analyzes multi-language repositories (Python, Java, C#, JavaScript, TypeScript, C/C++) and generates UML diagrams using Mermaid:
+- Class diagrams (with extends, implements, aggregation, composition, dependency)
+- Use case diagrams (from detected HTTP endpoints)
+- Activity, Sequence, and State diagrams (system-level flows)
+
+Components:
+- python-parser (Flask): clones/unzips repos, parses code, builds AST summary and heuristics, optionally merges with an LLM for enrichment.
+- backend (Express): proxies requests, caches results in memory and on disk, exposes /health.
+- frontend (Next.js): renders diagrams, allows filtering, export, and multi-diagram selection.
+
+See SUBMISSION_FOR_PROFESSOR.md for rubric mappings.# UML Designer AI - Project Summary
 
 ## 📋 Executive Summary
 

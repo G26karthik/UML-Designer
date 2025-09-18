@@ -1,4 +1,4 @@
-javalang
+javalang==0.13.0
 requests
 flask
 pytest

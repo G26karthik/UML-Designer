@@ -6,11 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "jest"
+    "export": "next build",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "lint": "next lint",
+    "render:build": "npm run build",
+    "render:start": "npm run start",
+    "health-check": "curl -f http://localhost:${PORT:-3000} || exit 1",
+    "verify-build": "next build && echo 'Build verification successful'"
   },
   "dependencies": {
     "autoprefixer": "^10.4.21",
-    "axios": "^1.6.0",
     "mermaid": "^11.9.0",
     "next": "^14.0.0",
     "postcss": "^8.5.6",

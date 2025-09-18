@@ -8,3 +8,13 @@ test('renders input and button', () => {
   expect(screen.getByPlaceholderText(/github repo url/i)).toBeInTheDocument();
   expect(screen.getByText('Analyze')).toBeInTheDocument();
 });
+
+test('renders diagram type selector', () => {
+  render(<Home />);
+  expect(screen.getByText('Diagram:')).toBeInTheDocument();
+  expect(screen.getByText('Class')).toBeInTheDocument();
+  expect(screen.getByText('Use Case')).toBeInTheDocument();
+  expect(screen.getByText('Activity')).toBeInTheDocument();
+  expect(screen.getByText('Sequence')).toBeInTheDocument();
+  expect(screen.getByText('State')).toBeInTheDocument();
+});

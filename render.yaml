@@ -1,0 +1,133 @@
+# Render Blueprint for UML Designer Full Stack Application
+# This file enables Infrastructure as Code deployment on Render
+# Place this file in the root of your repository for automatic deployment
+
+services:
+  # Backend Service
+  - type: web
+    name: uml-backend
+    env: node
+    plan: starter  # Change to 'standard' or 'pro' for production
+    buildCommand: npm run build
+    startCommand: npm run render:start
+    healthCheckPath: /health
+    rootDir: backend
+    
+    # Auto-deploy configuration
+    autoDeploy: true
+    branch: main  # Change to your production branch
+    
+    # Environment variables
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: info
+      - key: CACHE_TTL_MS
+        value: "1800000"
+      - key: DISK_CACHE_TTL_MS
+        value: "86400000"
+      - key: MAX_CACHE_ENTRIES
+        value: "1000"
+      - key: ANALYZE_TIMEOUT_MS
+        value: "300000"
+      - key: JSON_LIMIT
+        value: "20mb"
+      - key: UPLOAD_LIMIT_BYTES
+        value: "52428800"
+      - key: CORS_CREDENTIALS
+        value: "false"
+      - key: RATE_LIMIT_WINDOW_MS
+        value: "900000"
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: "100"
+      
+      # These should be set in Render dashboard for security
+      # - key: ALLOWED_ORIGINS
+      #   value: "https://your-frontend.onrender.com"
+      # - key: PYTHON_PARSER_URL
+      #   value: "https://your-python-parser.onrender.com"
+    
+    # Scaling configuration
+    scaling:
+      minInstances: 1
+      maxInstances: 3
+    
+    # Disk configuration
+    disk:
+      name: backend-cache
+      mountPath: /opt/render/project/src/cache
+      sizeGB: 1
+
+  # Frontend Service  
+  - type: web
+    name: uml-frontend
+    env: node
+    plan: starter  # Change to 'standard' or 'pro' for production
+    buildCommand: npm run render:build
+    startCommand: npm run render:start
+    rootDir: frontend
+    
+    # Auto-deploy configuration
+    autoDeploy: true
+    branch: main
+    
+    # Environment variables
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: NEXT_PUBLIC_ENVIRONMENT
+        value: production
+      - key: NEXT_PUBLIC_API_TIMEOUT
+        value: "30000"
+      - key: NEXT_PUBLIC_CACHE_TIMEOUT
+        value: "300000"
+      - key: NEXT_PUBLIC_MAX_FILE_SIZE
+        value: "52428800"
+      - key: NEXT_PUBLIC_ENABLE_ANALYTICS
+        value: "false"
+      - key: NEXT_PUBLIC_ENABLE_DEBUG
+        value: "false"
+      
+      # This should be set to your backend service URL
+      # - key: NEXT_PUBLIC_API_URL
+      #   value: "https://uml-backend.onrender.com"
+    
+    # Scaling configuration
+    scaling:
+      minInstances: 1
+      maxInstances: 2
+
+  # Python Parser Service
+  - type: web
+    name: uml-python-parser
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    healthCheckPath: /health
+    autoDeploy: true
+    branch: main
+    rootDir: python-parser
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: "5000"
+      - key: FLASK_DEBUG
+        value: "0"
+
+# Database configuration (if needed in the future)
+# databases:
+#   - name: uml-cache-db
+#     databaseName: uml_cache
+#     user: uml_user
+#     plan: starter  # Free tier available
+
+# Redis configuration (for distributed caching if needed)
+# - type: redis
+#   name: uml-cache-redis
+#   plan: starter
+#   maxmemoryPolicy: allkeys-lru

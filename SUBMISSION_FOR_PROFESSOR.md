@@ -3,6 +3,78 @@ Project: UML Designer AI
 Submitted by: Team 12
 Date: 25 August 2025
 
+Quick Start for Non-Technical Users
+----------------------------------
+1. Open the UML Designer AI web app.
+2. Paste a GitHub repository link OR type a description of your system in plain English (e.g., "A library system with books, members, and loans. Members can borrow books.").
+3. Instantly view and download a professional UML diagram—no coding required!
+
+Sample UML Diagram Outputs
+-------------------------
+Example 1: Library System
+Prompt: "A library system with books, members, and loans. Members can borrow books."
+
+Mermaid Output:
+```
+classDiagram
+	class Book {
+		title: String
+		author: String
+		isbn: String
+		borrow()
+		return()
+	}
+	class Member {
+		name: String
+		memberId: String
+		borrowBook()
+		returnBook()
+	}
+	class Loan {
+		book: Book
+		member: Member
+		dueDate: Date
+		renew()
+		close()
+	}
+	Member ..> Book : uses
+	Loan *-- Book : composition
+	Loan *-- Member : composition
+```
+
+Example 2: E-Commerce Platform
+Prompt: "An e-commerce platform with products, customers, orders, and payment processing."
+
+Mermaid Output:
+```
+classDiagram
+	class Product {
+		name: String
+		price: Float
+		sku: String
+		updateStock()
+	}
+	class Customer {
+		name: String
+		email: String
+		placeOrder()
+	}
+	class Order {
+		customer: Customer
+		products: List[Product]
+		total: Float
+		addProduct()
+		checkout()
+	}
+	class PaymentProcessor {
+		provider: String
+		processPayment()
+	}
+	Order o-- Product : aggregation
+	Order --> Customer : association
+	Order ..> PaymentProcessor : uses
+```
+
 Summary
 -------
 UML Designer is a compact full-stack project that analyzes source code from a repository and automatically generates UML class diagrams. It demonstrates multi-service integration (Next.js frontend, Express backend with caching, Python parser service) and practical concerns such as AST analysis, diagram generation, error handling, and developer UX.

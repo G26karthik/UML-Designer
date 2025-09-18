@@ -1,8 +1,199 @@
+# 📐 Coding Standards
+
+All contributors should follow these guidelines for code quality and maintainability:
+
+## General Principles
+- Write clear, self-documenting code
+- Use descriptive variable and function names
+- Prefer pure functions and modular design
+- Avoid magic numbers and hardcoded strings
+- Add comments for complex logic
+
+## JavaScript/TypeScript
+- Use ES6+ syntax (const/let, arrow functions, destructuring)
+- Prefer async/await for asynchronous code
+- Use JSDoc for function and module documentation
+- Run `npm run lint` before committing
+
+## Python
+- Follow PEP8 style guide
+- Use type hints where possible
+- Add docstrings for all functions and modules
+- Prefer list comprehensions and built-in functions
+
+## React/Next.js
+- Use functional components and hooks
+- Keep components small and focused
+- Document props and state with JSDoc
+- Use Tailwind CSS for styling
+
+## Testing
+- Add/extend unit tests for all new features and bug fixes
+- Use descriptive test names and assertions
+- Run all tests before submitting PRs
+
+## Documentation
+- Update README and relevant docs for any public API or behavior changes
+- Prefer Markdown for documentation and comments
+
+## Git & PRs
+- Keep commits atomic and focused
+- Write clear commit messages
+- Reference issues in PRs when relevant
+
+---
+
+Following these standards ensures a maintainable, professional codebase for all contributors.
 # UML Designer AI
 
-🎯 **Generate beautiful UML class diagrams from any GitHub repository using AI-powered code analysis**
+� **Multi-Language UML Diagram Generator**
 
-A full-stack application that automatically creates clean, professional UML class diagrams from codebases. Simply paste a GitHub URL, and get instant visual insights into class structures, relationships, and architecture patterns.
+A comprehensive tool for analyzing code repositories and generating professional UML diagrams using AI-powered parsing and Mermaid.js visualization.
+
+## 🚀 Features
+
+### **Multi-Diagram Support**
+- **Class Diagrams**: Inheritance, composition, aggregation, dependency relationships
+- **Use Case Diagrams**: From detected HTTP endpoints
+- **Activity Diagrams**: System-level workflows
+- **Sequence Diagrams**: Interaction flows
+- **State Diagrams**: System state transitions
+
+### **Multi-Language Analysis**
+- **Python**: Classes, inheritance, composition detection
+- **Java**: Classes, interfaces, Spring Boot endpoints
+- **C#**: Classes, inheritance, ASP.NET endpoints
+- **JavaScript/TypeScript**: ES6 classes, Express/NestJS endpoints
+- **C/C++**: Classes, structs, inheritance
+
+### **Advanced Features**
+- **AI-Enhanced Parsing**: Optional LLM integration for improved accuracy
+- **Relationship Detection**: Extends, implements, composition, aggregation, dependency
+- **Endpoint Detection**: REST API routes from frameworks (Flask, Spring, Express)
+- **Caching**: In-memory and disk caching for performance
+- **Interactive UI**: Real-time filtering, language visibility, export options
+
+## 🏗️ Architecture
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   Backend       │    │ Python Parser   │
+│   (Next.js)     │◄──►│   (Express)     │◄──►│   (Flask)       │
+│                 │    │                 │    │                 │
+│ • UI Controls   │    │ • Caching       │    │ • AST Analysis  │
+│ • Diagram Render│    │ • Proxy         │    │ • LLM Merge     │
+│ • Export        │    │ • Health Check  │    │ • Multi-lang    │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+## 📋 Requirements Coverage
+
+✅ **Diagram Accuracy**: Improved parsing logic with standards-compliant relationships  
+✅ **Diagram Types**: Support for 5 UML diagram types  
+✅ **Multi-Language**: 6+ programming languages with framework detection  
+✅ **Relationship Accuracy**: Extends, implements, composition, aggregation, dependency  
+✅ **Software Quality**: Comprehensive tests, documentation, modular architecture  
+
+## 🛠️ Quick Start
+
+### **Prerequisites**
+- Node.js 18+
+- Python 3.8+
+- Git
+
+### **Installation**
+```bash
+# Clone repository
+git clone <repository-url>
+cd uml-designer
+
+# Install backend dependencies
+cd backend
+npm install
+
+# Install frontend dependencies
+cd ../frontend
+npm install
+
+# Install Python parser dependencies
+cd ../python-parser
+pip install -r requirements.txt
+```
+
+### **Configuration**
+```bash
+# Backend environment
+cp backend/.env.example backend/.env
+# Set PYTHON_PARSER_URL=http://localhost:5000
+
+# Python parser environment
+cp python-parser/.env.example python-parser/.env
+# Set GROQ_API_KEY for AI enhancement (optional)
+```
+
+### **Running the Application**
+```bash
+# Terminal 1: Python Parser
+cd python-parser
+python app.py
+
+# Terminal 2: Backend
+cd backend
+npm start
+
+# Terminal 3: Frontend
+cd frontend
+npm run dev
+```
+
+Visit `http://localhost:3000` to use the application.
+
+## 📖 Usage
+
+1. **Select Diagram Type**: Choose from Class, Use Case, Activity, Sequence, or State
+2. **Enter Repository URL**: Paste a public GitHub repository URL
+3. **Analyze**: Click "Analyze" to process the repository
+4. **Customize**: Use filters for relationships, fields, methods, and language visibility
+5. **Export**: Copy Mermaid source or download SVG
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+cd backend && npm test
+cd ../frontend && npm test
+cd ../python-parser && python -m pytest
+
+# Test coverage
+cd python-parser && python -m pytest --cov=analyze
+```
+
+## 📚 API Documentation
+
+
+### **Backend Endpoints (v1)**
+- `POST /api/v1/analyze`: Analyze repository (GitHub URL or ZIP upload)
+- `GET /api/v1/health`: Service health check
+- `GET /api/v1/openapi.json`: OpenAPI 3.0 specification for backend API
+
+### **Python Parser API**
+- `POST /analyze`: Process repository and return schema
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Ensure all tests pass
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+**Made with ❤️ for software engineering education and professional UML diagramming**
 
 ## 🚀 Quick Start
 

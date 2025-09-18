@@ -1,0 +1,55 @@
+{
+  "apps": [
+    {
+      "name": "uml-backend",
+  "script": "server.js",
+      "instances": "max",
+      "exec_mode": "cluster",
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": 3001,
+        "LOG_LEVEL": "info"
+      },
+      "env_production": {
+        "NODE_ENV": "production",
+        "PORT": 3001,
+        "LOG_LEVEL": "info",
+        "CACHE_TTL_MS": "1800000",
+        "DISK_CACHE_TTL_MS": "86400000",
+        "ANALYZE_TIMEOUT_MS": "300000",
+        "JSON_LIMIT": "20mb",
+        "UPLOAD_LIMIT_BYTES": "52428800",
+        "CORS_CREDENTIALS": "false"
+      },
+      "env_development": {
+        "NODE_ENV": "development",
+        "PORT": 3001,
+        "LOG_LEVEL": "debug",
+        "CACHE_TTL_MS": "300000",
+        "DISK_CACHE_TTL_MS": "3600000",
+        "ANALYZE_TIMEOUT_MS": "120000"
+      },
+      "log_date_format": "YYYY-MM-DD HH:mm:ss Z",
+      "error_file": "./logs/pm2-error.log",
+      "out_file": "./logs/pm2-out.log",
+      "log_file": "./logs/pm2-combined.log",
+      "merge_logs": true,
+      "max_memory_restart": "500M",
+      "restart_delay": 5000,
+      "max_restarts": 10,
+      "min_uptime": "10s",
+      "kill_timeout": 5000,
+      "listen_timeout": 10000,
+      "shutdown_with_message": true,
+      "watch": false,
+      "ignore_watch": [
+        "node_modules",
+        "logs",
+        "cache",
+        "uploads"
+      ],
+      "source_map_support": true,
+      "instance_var": "INSTANCE_ID"
+    }
+  ]
+}
