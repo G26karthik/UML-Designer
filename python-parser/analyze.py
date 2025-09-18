@@ -608,6 +608,20 @@ def _analyze_javascript_file(full_path, package_path, result, class_info, all_cl
             # Remove constructor from methods
             methods.discard('constructor')
 
+            # Instance field assignments: this.foo = new Bar() or this.foo = expr
+            for m in re.finditer(r'\bthis\.([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*new\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\(', class_content):
+                fld, rhs_cls = m.group(1), m.group(2)
+                # record field with inferred type
+                fields.add(f"{fld}: {rhs_cls}")
+                if rhs_cls in all_class_names and rhs_cls != class_name:
+                    composition_rels.append({'from': class_name, 'to': rhs_cls, 'type': 'composition'})
+            # generic assignment without type inference
+            for m in re.finditer(r'\bthis\.([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*[^;]+;', class_content):
+                fld = m.group(1)
+                # don't overwrite typed form if already present
+                if not any(str(f).startswith(fld + ":") or str(f) == fld for f in fields):
+                    fields.add(fld)
+
             class_entry = {
                 'class': class_name,
                 'fields': sorted(list(fields)),
@@ -734,6 +748,17 @@ def _analyze_typescript_file(full_path, package_path, result, class_info, all_cl
                 method_name = method_match.group(1)
                 if method_name not in ['constructor', 'if', 'for', 'while']:
                     methods.add(method_name)
+
+            # Instance field assignments: this.foo = new Bar() or this.foo = expr
+            for m in re.finditer(r'\bthis\.([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*new\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\(', type_content):
+                fld, rhs_cls = m.group(1), m.group(2)
+                fields.add(f"{fld}: {rhs_cls}")
+                if rhs_cls in all_class_names and rhs_cls != class_name:
+                    composition_rels.append({'from': class_name, 'to': rhs_cls, 'type': 'composition'})
+            for m in re.finditer(r'\bthis\.([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*[^;]+;', type_content):
+                fld = m.group(1)
+                if not any(str(f).startswith(fld + ":") or str(f) == fld for f in fields):
+                    fields.add(fld)
 
             stereotype = 'interface' if type_kind == 'interface' else 'abstract' if 'abstract' in match.group(0) else 'class'
 
