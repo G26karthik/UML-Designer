@@ -359,9 +359,8 @@ def _analyze_java_file(full_path, package_path, result, class_info, all_class_na
                         # Track state fields
                         if any(s in field_name.lower() for s in ['state', 'status', 'mode']):
                             state_fields.add(field_name)
-                        # Check for composition
-                        if field_type in all_class_names:
-                            compositions.add(field_type)
+                        # Composition candidate (validated later against discovered classes)
+                        compositions.add(field_type)
 
             # Methods and use case extraction
             methods = set()
@@ -410,8 +409,36 @@ def _analyze_java_file(full_path, package_path, result, class_info, all_class_na
                         param_type = getattr(param, 'type', None)
                         if param_type and hasattr(param_type, 'name'):
                             param_type = param_type.name
-                        if param_type and param_type in all_class_names:
+                        if param_type:
                             usage_rels.append({'from': class_name, 'to': param_type, 'type': 'uses'})
+
+            # Heuristic enrichment by scanning class body text for compositions/usages
+            try:
+                class_text = _extract_java_class_content(source, class_name)
+            except Exception:
+                class_text = None
+            if class_text:
+                # Detect this.field = new OtherClass()
+                for m in re.finditer(r'\bthis\.([A-Za-z_][A-Za-z0-9_]*)\s*=\s*new\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(', class_text):
+                    fld, rhs = m.group(1), m.group(2)
+                    fields.add(f"{fld}: {rhs}")
+                    if rhs != class_name:
+                        compositions.add(rhs)
+                # Detect local instantiations: new OtherClass()
+                for m in re.finditer(r'\bnew\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(', class_text):
+                    rhs = m.group(1)
+                    if rhs != class_name:
+                        usage_rels.append({'from': class_name, 'to': rhs, 'type': 'uses'})
+                # Detect static calls: OtherClass.method(
+                for m in re.finditer(r'\b([A-Za-z_][A-Za-z0-9_]*)\s*\.\s*[A-Za-z_][A-Za-z0-9_]*\s*\(', class_text):
+                    qual = m.group(1)
+                    if qual != class_name:
+                        usage_rels.append({'from': class_name, 'to': qual, 'type': 'uses'})
+                # Detect local variable declarations: OtherClass var = ...; or OtherClass var;
+                for m in re.finditer(r'\b([A-Za-z_][A-Za-z0-9_]*)\s+[A-Za-z_][A-Za-z0-9_]*\s*(?:[=;])', class_text):
+                    tname = m.group(1)
+                    if tname != class_name:
+                        usage_rels.append({'from': class_name, 'to': tname, 'type': 'uses'})
 
             modifiers = set(getattr(cls, 'modifiers', []))
             stereotype = 'interface' if isinstance(cls, javalang.tree.InterfaceDeclaration) else 'abstract' if 'abstract' in modifiers else 'class'
@@ -446,6 +473,40 @@ def _analyze_java_file(full_path, package_path, result, class_info, all_class_na
                 result.setdefault('sequence', []).extend(method_calls)
     except Exception as e:
         logging.error(f"Java file analysis failed for {full_path}: {e}")
+
+
+def _extract_java_class_content(source: str, class_name: str) -> str:
+    """Extract the textual body of a Java class by matching braces starting from class declaration."""
+    # Find class declaration start
+    pattern = re.compile(r'(?:public\s+|protected\s+|private\s+|abstract\s+|final\s+|static\s+)*class\s+' + re.escape(class_name) + r'\b[^\{]*\{', re.MULTILINE)
+    m = pattern.search(source)
+    if not m:
+        # fallback: interface or record (not typical here but safe)
+        pattern2 = re.compile(r'(?:public\s+|protected\s+|private\s+)*\b(?:class|interface|record)\s+' + re.escape(class_name) + r'\b[^\{]*\{', re.MULTILINE)
+        m = pattern2.search(source)
+        if not m:
+            return ''
+    start = m.end() - 1  # position of opening brace
+    # Match braces to find end of class
+    brace = 0
+    i = start
+    content = ''
+    while i < len(source):
+        ch = source[i]
+        if ch == '{':
+            brace += 1
+            if brace > 1:
+                content += ch
+        elif ch == '}':
+            if brace == 1:
+                break
+            brace -= 1
+            content += ch
+        else:
+            if brace >= 1:
+                content += ch
+        i += 1
+    return content
 
 
 def _extract_java_endpoints(source, result):
@@ -520,9 +581,9 @@ def _analyze_csharp_file(full_path, package_path, result, class_info, all_class_
                 field_name = field_match.group(2)
                 fields.add(f"{field_name}: {field_type}")
 
-                # Check for composition
+                # Composition candidate; validated at relation build stage
                 clean_type = re.sub(r'<[^>]*>', '', field_type).strip()
-                if clean_type in all_class_names:
+                if clean_type and clean_type != class_name:
                     composition_rels.append({'from': class_name, 'to': clean_type, 'type': 'composition'})
 
             # Extract methods
@@ -613,7 +674,7 @@ def _analyze_javascript_file(full_path, package_path, result, class_info, all_cl
                 fld, rhs_cls = m.group(1), m.group(2)
                 # record field with inferred type
                 fields.add(f"{fld}: {rhs_cls}")
-                if rhs_cls in all_class_names and rhs_cls != class_name:
+                if rhs_cls != class_name:
                     composition_rels.append({'from': class_name, 'to': rhs_cls, 'type': 'composition'})
             # generic assignment without type inference
             for m in re.finditer(r'\bthis\.([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*[^;]+;', class_content):
@@ -753,7 +814,7 @@ def _analyze_typescript_file(full_path, package_path, result, class_info, all_cl
             for m in re.finditer(r'\bthis\.([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*new\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\(', type_content):
                 fld, rhs_cls = m.group(1), m.group(2)
                 fields.add(f"{fld}: {rhs_cls}")
-                if rhs_cls in all_class_names and rhs_cls != class_name:
+                if rhs_cls != class_name:
                     composition_rels.append({'from': class_name, 'to': rhs_cls, 'type': 'composition'})
             for m in re.finditer(r'\bthis\.([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*[^;]+;', type_content):
                 fld = m.group(1)
