@@ -91,6 +91,9 @@ export const errorHandler = (logger) => (err, req, res, next) => {
       error = new AppError('Request timeout', ErrorTypes.TIMEOUT, null, err);
     } else if (err.type === 'entity.too.large') {
       error = new AppError('Request payload too large', ErrorTypes.PAYLOAD_TOO_LARGE, null, err);
+    } else if (err.type === 'entity.parse.failed' || err instanceof SyntaxError || /Unexpected token/.test(err.message || '')) {
+      // JSON parse errors from body-parser should be treated as validation failures
+      error = new AppError('Invalid JSON payload', ErrorTypes.VALIDATION, null, err);
     } else {
       error = new AppError(err.message || 'Internal server error', ErrorTypes.INTERNAL, null, err);
     }
@@ -119,6 +122,21 @@ export const errorHandler = (logger) => (err, req, res, next) => {
   const requestId = req.id || req.headers['x-request-id'];
   const errorResponse = createErrorResponse(error, requestId);
   
+  // For validation errors (tests expect a simple string in .body.error), provide compatibility
+  if (error.type === ErrorTypes.VALIDATION || error.type === ErrorTypes.PAYLOAD_TOO_LARGE) {
+    // Some legacy endpoints (file uploads under /analyze) expect a success:false envelope
+    try {
+      const p = req.path || req.originalUrl || '';
+      if (typeof p === 'string' && p.startsWith('/analyze')) {
+        return res.status(error.statusCode).json({ success: false, error: error.message });
+      }
+    } catch (e) {
+      // ignore and fallthrough
+    }
+    // Default: return the simple string error for other endpoints (tests expect this)
+    return res.status(error.statusCode).json({ error: error.message });
+  }
+
   res.status(error.statusCode).json(errorResponse);
 };
 

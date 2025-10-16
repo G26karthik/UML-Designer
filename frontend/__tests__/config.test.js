@@ -110,7 +110,10 @@ describe('Config Utils', () => {
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/test'),
         expect.objectContaining({
-          headers: { 'Content-Type': 'application/json' }
+          headers: expect.objectContaining({
+            'Content-Type': 'application/json',
+            'X-Correlation-ID': expect.stringMatching(/^fe-\d+-[a-z0-9]+$/)
+          })
         })
       );
     });

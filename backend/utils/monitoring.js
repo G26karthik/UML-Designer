@@ -12,7 +12,7 @@ import logger, { logHealthCheck } from './logger.js';
 class MetricsCollector extends EventEmitter {
   constructor() {
     super();
-    this.metrics = {
+  this.metrics = {
       // Application metrics
       requests: {
         total: 0,
@@ -62,7 +62,8 @@ class MetricsCollector extends EventEmitter {
     this.startTime = Date.now();
     
     // Start periodic system metrics collection
-    this.startSystemMetricsCollection();
+  this.systemMetricsInterval = null;
+  this.startSystemMetricsCollection();
   }
   
   // Request metrics
@@ -171,9 +172,22 @@ class MetricsCollector extends EventEmitter {
       this.emit('systemMetrics', this.metrics.system);
     };
     
-    // Collect system metrics every 30 seconds
-    setInterval(collectSystemMetrics, 30000);
     collectSystemMetrics(); // Initial collection
+
+    const shouldDisableInterval =
+      process.env.NODE_ENV === 'test' ||
+      process.env.DISABLE_SYSTEM_METRICS === 'true';
+
+    if (shouldDisableInterval) {
+      return;
+    }
+
+    // Collect system metrics every 30 seconds
+    this.systemMetricsInterval = setInterval(collectSystemMetrics, 30000);
+
+    if (typeof this.systemMetricsInterval.unref === 'function') {
+      this.systemMetricsInterval.unref();
+    }
   }
   
   // Get current metrics snapshot

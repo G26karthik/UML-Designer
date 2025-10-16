@@ -358,7 +358,7 @@ backend/
 │   └── api.js          # Central API router (analyze, health, admin)
 ├── middleware/         # Express middleware
 │   ├── cache.js        # Caching middleware
-│   ├── cors.js         # CORS configuration
+│   ├── cors.js
 │   └── validation.js   # Request validation
 ├── utils/              # Utility functions
 │   ├── logger.js       # Production logging

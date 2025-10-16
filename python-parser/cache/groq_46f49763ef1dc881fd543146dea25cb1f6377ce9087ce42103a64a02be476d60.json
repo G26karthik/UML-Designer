@@ -1,0 +1,10 @@
+{
+  "diagram": "@startuml\nstart\n:Collect requirements;\n:Design solution;\n:Review with stakeholders;\nstop\n@enduml",
+  "raw_diagram": "@startuml\nstart\n:Collect requirements;\n:Design solution;\n:Review with stakeholders;\nstop\n@enduml",
+  "diagram_type": "activity",
+  "format": "plantuml",
+  "source": "stub",
+  "warnings": [
+    "LLM call skipped because STUB_LLM is enabled."
+  ]
+}

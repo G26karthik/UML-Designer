@@ -1,0 +1,10 @@
+{
+  "diagram": "gantt\ntitle Project timeline\ndateFormat  YYYY-MM-DD",
+  "raw_diagram": "```mermaid\ngantt\ntitle Project timeline\ndateFormat  YYYY-MM-DD\n\n```",
+  "diagram_type": "gantt",
+  "format": "mermaid",
+  "source": "stub",
+  "warnings": [
+    "LLM call skipped because STUB_LLM is enabled."
+  ]
+}

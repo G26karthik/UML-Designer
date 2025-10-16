@@ -7,7 +7,7 @@ describe('Upload validation', () => {
   let app;
   beforeAll(async () => {
     const mod = await import('../index.js');
-    app = mod.default;
+    app = mod.default();
   });
 
   it('rejects non-zip file extension', async () => {

@@ -365,6 +365,40 @@ curl -X POST http://localhost:5000/analyze \
 }
 ```
 
+### **POST /uml-from-prompt**
+Generate PlantUML or Mermaid diagrams directly from a natural-language description.
+
+#### **Basic Usage**
+```bash
+curl -X POST http://localhost:5000/uml-from-prompt \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "User management system with admins and members",
+    "diagramType": "class",
+    "format": "plantuml"
+  }'
+```
+
+#### **Optional Fields**
+- `diagramType` – `class | sequence | usecase | state | activity` (default: `class`)
+- `format` – `plantuml | mermaid` (default: `plantuml`)
+- `context` – object with extra background details (e.g., `{ "domain": "SaaS" }`)
+- `stylePreferences` – object with theme/layout hints to feed the LLM
+- `focus` – array or comma-delimited string of emphasis areas (e.g., security, scalability)
+
+#### **Response Format**
+```json
+{
+  "diagram": "@startuml\nclass User {\n  +id: UUID\n}\n@enduml",
+  "diagram_type": "class",
+  "format": "plantuml",
+  "source": "stub",
+  "warnings": ["LLM call skipped because STUB_LLM is enabled."]
+}
+```
+
+When the Groq API is unavailable or `STUB_LLM=true`, the service returns a deterministic stub diagram so the UI can continue to render preview output.
+
 ## 🧪 Testing & Quality Assurance
 
 ### **Test Structure**
@@ -390,7 +424,7 @@ pip install pytest pytest-cov
 pytest -v
 
 # Current suite count
-# 12 tests covering Python, TypeScript/JavaScript, Java relations and endpoints
+# 19 tests covering Python, TypeScript/JavaScript, Java relations, endpoints, and prompt-driven diagrams
 
 # Run with coverage
 pytest --cov=. --cov-report=html

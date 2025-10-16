@@ -1,0 +1,10 @@
+{
+  "diagram": "flowchart TD\nStart --> Process[Collect requirements]\nProcess --> Review[Review with stakeholders]",
+  "raw_diagram": "```mermaid\nflowchart TD\nStart --> Process[Collect requirements]\nProcess --> Review[Review with stakeholders]\n\n```",
+  "diagram_type": "activity",
+  "format": "mermaid",
+  "source": "stub",
+  "warnings": [
+    "LLM call skipped because STUB_LLM is enabled."
+  ]
+}

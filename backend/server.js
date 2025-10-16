@@ -70,15 +70,20 @@ app.use(cors({
   },
   credentials: process.env.CORS_CREDENTIALS === 'true',
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-ID']
 }));
 
 // Add monitoring endpoints
 createMonitoringEndpoints(app);
 
 // Mount API router (versioned); optionally mount legacy alias
-const apiRouter = createApiRouter({ logger, httpClient: axios, isTest: false });
+const apiRouter = createApiRouter({ logger, httpClient: axios, isTest: process.env.NODE_ENV === 'test' });
 app.use('/api/v1', apiRouter);
+// Expose the router on the app for tests so they can call helpers like
+// apiRouter.__setHttpClient to inject a mock client when needed.
+app.locals.apiRouter = apiRouter;
+// Back-compat mount for tests and legacy clients that expect /api/* routes
+app.use('/api', apiRouter);
 if (process.env.ENABLE_LEGACY_ROUTES === 'true') {
   app.use('/', apiRouter);
 }
@@ -101,16 +106,26 @@ app.use(errorHandler(logger));
 
 const PORT = process.env.PORT || 3001;
 
-const server = app.listen(PORT, () => {
-  logger.info(`🚀 Production backend server started on port ${PORT}`, {
-    port: PORT,
-    environment: process.env.NODE_ENV || 'production',
-    nodeVersion: process.version
+// If running tests, do not start an actual HTTP server; export the app so
+// supertest can use it directly. In non-test environments, start listening
+// as normal.
+let server;
+if (process.env.NODE_ENV === 'test') {
+  // Do not call app.listen in tests to avoid binding ports and to allow
+  // supertest to use the app directly.
+  logger.info('Server running in test mode: not starting HTTP listener');
+} else {
+  server = app.listen(PORT, () => {
+    logger.info(`🚀 Production backend server started on port ${PORT}`, {
+      port: PORT,
+      environment: process.env.NODE_ENV || 'production',
+      nodeVersion: process.version
+    });
+
+    // Start periodic metrics logging
+    startPeriodicMetricsLogging();
   });
-  
-  // Start periodic metrics logging
-  startPeriodicMetricsLogging();
-});
+}
 
 // Graceful shutdown handling
 const gracefulShutdown = (signal) => {
@@ -130,3 +145,9 @@ const gracefulShutdown = (signal) => {
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+// Export the app for tests (CommonJS and ESM consumers)
+export default app;
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = app;
+}

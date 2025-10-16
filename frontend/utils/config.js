@@ -3,7 +3,7 @@
  * Centralizes all environment variables and configuration
  */
 
-import { validateApiResponse } from './errorHandler';
+// errorHandler.js and related exports removed. Use standard Error and generic messages below.
 
 export const config = {
   // API Configuration
@@ -25,7 +25,16 @@ export const config = {
   // UI Configuration
   ui: {
     maxFileSize: 50 * 1024 * 1024, // 50MB
-    supportedDiagramTypes: ['class', 'usecase', 'activity', 'sequence', 'state'],
+    supportedDiagramTypes: [
+      'class',
+      'usecase',
+      'activity',
+      'sequence',
+      'state',
+      'component',
+      'communication',
+      'deployment',
+    ],
   }
 };
 
@@ -58,51 +67,51 @@ export const apiRequest = async (endpoint, options = {}) => {
   if (endpoint === '/health') versionedEndpoint = '/api/v1/health';
   if (endpoint === '/uml-from-prompt') versionedEndpoint = '/api/v1/uml-from-prompt';
   const url = `${config.api.baseUrl}${versionedEndpoint}`;
+
+  // Generate correlation ID for this request
+  const correlationId = `fe-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
   const defaultOptions = {
     timeout: config.api.timeout,
     headers: {
       'Content-Type': 'application/json',
+      'X-Correlation-ID': correlationId,
     },
   };
-  
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), defaultOptions.timeout);
-  
+
   try {
     const response = await fetch(url, {
       ...defaultOptions,
       ...options,
       signal: controller.signal,
     });
-    
+
     clearTimeout(timeoutId);
-    
+
     let data;
     try {
       data = await response.json();
     } catch {
       data = { error: 'Invalid response format from server' };
     }
-    
-    // Use standardized validation
-    return validateApiResponse(response, data);
-    
+
+    if (!response.ok) {
+      throw new Error(data.error || `API error: ${response.status}`);
+    }
+    return data;
+
   } catch (error) {
     clearTimeout(timeoutId);
-    
-    // Add context to errors
+
     if (error.name === 'AbortError') {
-      const timeoutError = new Error('Request timed out');
-      timeoutError.code = 'TIMEOUT';
-      throw timeoutError;
+      throw new Error('Request timed out');
     }
-    
     if (error instanceof TypeError && error.message.includes('fetch')) {
-      const networkError = new Error('Network connection failed');
-      networkError.code = 'NETWORK_ERROR';
-      throw networkError;
+      throw new Error('Network connection failed');
     }
-    
     throw error;
   }
 };

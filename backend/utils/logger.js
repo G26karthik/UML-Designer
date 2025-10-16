@@ -6,22 +6,35 @@
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-// Handle both ESM and CommonJS environments
-let __dirname;
-if (process.env.NODE_ENV === 'test') {
-  // In test environment, use simple path
-  __dirname = path.resolve('logs');
-} else {
-  try {
-    const __filename = fileURLToPath(import.meta.url);
-    __dirname = path.dirname(__filename);
-  } catch (e) {
-    // Fallback
-    __dirname = path.resolve();
+// Determine a safe logs directory without relying on `import.meta` which
+// may not be available under Jest's current transform/runner. For tests we
+// prefer a simple 'logs' folder; otherwise fall back to project root.
+let __dirname = process.env.NODE_ENV === 'test' ? path.resolve('logs') : path.resolve();
+
+// Helper to determine if a boolean-ish env var is enabled
+const isTruthy = (value) => {
+  if (value === undefined || value === null) return false;
+  const normalized = String(value).trim().toLowerCase();
+  return ['1', 'true', 'yes', 'on'].includes(normalized);
+};
+
+// Determine effective log level. Allow explicit LOG_LEVEL override, otherwise
+// enable verbose debug output only when a debug flag is set.
+const debugLoggingEnabled =
+  isTruthy(process.env.DEBUG_LOGGING) ||
+  isTruthy(process.env.DEBUG_OUTBOUND) ||
+  process.env.LOG_LEVEL === 'debug';
+
+const resolvedLogLevel = (() => {
+  if (process.env.LOG_LEVEL && process.env.LOG_LEVEL !== 'debug') {
+    return process.env.LOG_LEVEL;
   }
-}
+  if (debugLoggingEnabled) {
+    return 'debug';
+  }
+  return process.env.NODE_ENV === 'production' ? 'info' : 'info';
+})();
 
 // Log levels and colors
 const logLevels = {
@@ -85,7 +98,7 @@ const transports = [];
 if (process.env.NODE_ENV !== 'production') {
   transports.push(
     new winston.transports.Console({
-      level: process.env.LOG_LEVEL || 'debug',
+      level: resolvedLogLevel,
       format: consoleFormat
     })
   );
@@ -139,7 +152,7 @@ if (process.env.NODE_ENV !== 'test') {
 // Create Winston logger instance
 const logger = winston.createLogger({
   levels: logLevels,
-  level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug'),
+  level: resolvedLogLevel,
   format: logFormat,
   transports,
   // Handle uncaught exceptions and rejections

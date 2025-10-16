@@ -1,0 +1,10 @@
+{
+  "diagram": "sequenceDiagram\nparticipant User\nparticipant System\nUser->>System: request\nSystem-->>User: response",
+  "raw_diagram": "```mermaid\nsequenceDiagram\nparticipant User\nparticipant System\nUser->>System: request\nSystem-->>User: response\n\n```",
+  "diagram_type": "sequence",
+  "format": "mermaid",
+  "source": "stub",
+  "warnings": [
+    "LLM call skipped because STUB_LLM is enabled."
+  ]
+}

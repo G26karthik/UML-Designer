@@ -3,3 +3,8 @@ requests
 flask
 pytest
 python-dotenv
+
+fastapi
+uvicorn
+diskcache
+concurrent-log-handler

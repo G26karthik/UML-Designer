@@ -4,12 +4,45 @@ Thumbs.db
 
 # Node
 node_modules/
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+*.swp
+*.swo
+.vscode/
+.idea/
+.history/
+
 frontend/.next/
 frontend/.turbo/
 frontend/out/
 backend/cache/
 backend/uploads/
 backend/logs/
+
+# Coverage
+
+# Node.js
+node_modules/
+frontend/.next/
+frontend/.turbo/
+frontend/out/
+backend/cache/
+backend/uploads/
+backend/logs/
+backend/.env.local
+frontend/.env.local
+
+coverage/
+frontend/coverage/
+backend/coverage/
+python-parser/.coverage
+python-parser/htmlcov/
+
 
 # Coverage
 coverage/
@@ -24,18 +57,62 @@ python-parser/.pytest_cache/
 **/__pycache__/
 **/*.pyc
 
+# Python
+python-parser/venv/
+python-parser/.pytest_cache/
+python-parser/.mypy_cache/
+python-parser/.coverage
+python-parser/htmlcov/
+python-parser/.env
+python-parser/.env.*
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+*.egg-info/
+*.egg
+dist/
+build/
+
+
 # PM2
 ~/.pm2/
+
+# PM2
+~/.pm2/
+pm2.log
+
 pm2.log
 
 # Logs
 *.log
 npm-debug.log*
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+backend/logs/
+frontend/logs/
+python-parser/logs/
+
 yarn-debug.log*
 yarn-error.log*
 
 # Env
 .env
+
+# Env & Secrets
+.env
+**/.env
+.env.*
+**/.env.*
+*.secret
+*.key
+*.pem
+
 **/.env
 .env.*
 **/.env.*

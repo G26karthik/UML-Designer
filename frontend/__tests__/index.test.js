@@ -1,7 +1,11 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Home from '../pages/index';
+
+beforeEach(() => {
+  window.localStorage.clear();
+});
 
 test('renders input and button', () => {
   render(<Home />);
@@ -18,3 +22,4 @@ test('renders diagram type selector', () => {
   expect(screen.getByText('Sequence')).toBeInTheDocument();
   expect(screen.getByText('State')).toBeInTheDocument();
 });
+
