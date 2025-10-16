@@ -1,33 +1,3 @@
-# Project-Based Learning (PBL) Report  
-**Title:** UML Designer AI  
-**Course:** Bachelor of Technology in Computer Science and Engineering (Course Code: [Placeholder])  
-**Student Name:** [Student Name]  
-**Roll Number:** [Roll Number]  
-**Faculty Guide:** [Guide Name]  
-**Department:** Department of Computer Science and Engineering, Geethanjali College of Engineering and Technology  
-**Academic Year:** A.Y. 2025–26  
-
----
-
-## 1. Introduction
-
-UML Designer AI is an open-source, full-stack platform designed to automate the generation, analysis, and visualization of Unified Modeling Language (UML) diagrams from source code or natural language prompts. The project addresses the real-world need for rapid, accurate software architecture visualization, bridging communication gaps between technical and non-technical stakeholders.  
-The motivation stems from the complexity of modern software systems and the necessity for clear documentation and design communication. The system enables users—developers, students, analysts—to convert codebases or requirements into professional UML diagrams, supporting collaboration and understanding.  
-**Learning objectives** include mastering full-stack development, API design, code analysis, and the application of software engineering principles such as modularity, security, and testing.  
-**Technologies used:** Node.js (Express.js), Python (Flask), React (Next.js), Tailwind CSS, PlantUML, and AI/LLM integration for enhanced code analysis.
-
----
-
-## 2. System Design
-
-### System Architecture
-
-UML Designer AI follows a modular, client-server architecture:
-
-- **Frontend:** React-based web application for user interaction, diagram rendering, and export.
-- **Backend:** Node.js Express API gateway, handling requests, caching, security, and proxying to the parser.
-- **Python Parser Microservice:** Analyzes code repositories, infers relationships, and generates normalized schema for UML diagrams.
-
 
 # Project-Based Learning (PBL) Report
 **Title:** UML Designer AI
