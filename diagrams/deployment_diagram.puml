@@ -1,0 +1,16 @@
+@startuml
+' Deployment Diagram for UML Designer AI
+node Client {
+  [User]
+}
+node WebServer {
+  [Frontend]
+  [Backend]
+}
+node AnalysisServer {
+  [Parser]
+}
+[User] --> [Frontend]
+[Frontend] --> [Backend]
+[Backend] --> [Parser]
+@enduml

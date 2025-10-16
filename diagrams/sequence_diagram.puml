@@ -1,0 +1,10 @@
+@startuml
+' Sequence Diagram for UML Designer AI
+actor User
+User -> Frontend: Request analysis
+Frontend -> Backend: API call /analyze
+Backend -> Parser: Analyze repo
+Parser --> Backend: Analysis result
+Backend --> Frontend: Diagram data
+Frontend --> User: Rendered diagram
+@enduml

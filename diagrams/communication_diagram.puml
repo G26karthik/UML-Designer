@@ -1,0 +1,10 @@
+@startuml
+' Communication Diagram for UML Designer AI
+participant Frontend
+participant Backend
+participant Parser
+Frontend -> Backend: Request analysis
+Backend -> Parser: Analyze repo
+Parser --> Backend: Result
+Backend --> Frontend: Diagram
+@enduml

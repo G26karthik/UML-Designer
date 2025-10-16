@@ -1,0 +1,25 @@
+@startuml
+' Class Diagram for UML Designer AI
+class User {
+  +selectRepository()
+  +exportDiagram()
+}
+class Frontend {
+  +renderDiagram()
+  +requestAnalysis()
+  +exportSVG()
+}
+class Backend {
+  +analyze()
+  +getFromCache()
+  +saveToCache()
+}
+class Parser {
+  +parseRepository()
+  +detectLanguage()
+  +toNormalizedJson()
+}
+User --|> Frontend : uses
+Frontend --> Backend : API call
+Backend --> Parser : invokes
+@enduml

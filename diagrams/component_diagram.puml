@@ -1,0 +1,14 @@
+@startuml
+' Component Diagram for UML Designer AI
+package "Web Application" {
+  [Frontend]
+}
+package "API Server" {
+  [Backend]
+}
+package "Code Analyzer" {
+  [Parser]
+}
+[Frontend] --> [Backend]
+[Backend] --> [Parser]
+@enduml

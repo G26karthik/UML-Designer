@@ -1,0 +1,9 @@
+@startuml
+' State Diagram for UML Designer AI
+[*] --> Idle
+Idle --> Analyzing : User submits repo
+Analyzing --> Generating : Analysis complete
+Generating --> Ready : Diagram generated
+Ready --> Exporting : User exports diagram
+Exporting --> Idle : Done
+@enduml

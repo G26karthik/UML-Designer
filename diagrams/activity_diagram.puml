@@ -1,0 +1,11 @@
+@startuml
+' Activity Diagram for UML Designer AI
+start
+:User selects repository;
+:User submits for analysis;
+:Backend validates input;
+:Parser analyzes code;
+:Generate UML diagram;
+:User views/downloads diagram;
+stop
+@enduml

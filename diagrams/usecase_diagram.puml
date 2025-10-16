@@ -1,0 +1,8 @@
+@startuml
+' Use Case Diagram for UML Designer AI
+actor User
+User --> (Analyze Repository)
+User --> (Export Diagram)
+(Analyze Repository) --> (View Diagram)
+(View Diagram) --> (Export Diagram)
+@enduml
