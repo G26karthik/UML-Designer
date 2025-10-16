@@ -49,17 +49,43 @@ User → Frontend → Backend → Python Parser → Backend → Frontend → Use
   - No traditional database; uses disk-based cache for analysis results.
   - Caching strategy: LRU in-memory and persistent disk cache keyed by repository URL and commit hash.
 
-### Diagrams (Conceptual Role)
+### Diagrams (Embedded)
 
-- **Class Diagram:** Shows main system classes and their relationships ([View Online](https://github.com/<your-org>/UML-Designer/raw/main/diagrams/class_diagram.puml)).
-- **Use Case Diagram:** Illustrates user actions and system features ([View Online](https://github.com/<your-org>/UML-Designer/raw/main/diagrams/usecase_diagram.puml)).
-- **Activity Diagram:** Depicts workflow from repository selection to diagram generation and export ([View Online](https://github.com/<your-org>/UML-Designer/raw/main/diagrams/activity_diagram.puml)).
-- **State Diagram:** Represents system states ([View Online](https://github.com/<your-org>/UML-Designer/raw/main/diagrams/state_diagram.puml)).
-- **Sequence Diagram:** Details request flow ([View Online](https://github.com/<your-org>/UML-Designer/raw/main/diagrams/sequence_diagram.puml)).
-- **Component Diagram:** Outlines major modules and their connections ([View Online](https://github.com/<your-org>/UML-Designer/raw/main/diagrams/component_diagram.puml)).
-- **Communication Diagram:** Shows message passing ([View Online](https://github.com/<your-org>/UML-Designer/raw/main/diagrams/communication_diagram.puml)).
+Below are the primary UML diagrams generated for this project. These images reference the local `diagrams/` folder and will render directly on GitHub after pushing this repository.
 
-*Diagrams are referenced from the project’s `/diagrams` folder and README visual overview. After pushing to GitHub, these links will allow online viewing of the diagrams.*
+Class Diagram (core classes and relationships):
+
+![Class Diagram](diagrams/class_diagram.png)
+
+Use Case Diagram (user interactions and features):
+
+![Use Case Diagram](diagrams/usecase_diagram.png)
+
+Activity Diagram (workflow):
+
+![Activity Diagram](diagrams/activity_diagram.png)
+
+State Diagram (system states):
+
+![State Diagram](diagrams/state_diagram.png)
+
+Sequence Diagram (request flow):
+
+![Sequence Diagram](diagrams/sequence_diagram.png)
+
+Component Diagram (modules and connections):
+
+![Component Diagram](diagrams/component_diagram.png)
+
+Communication Diagram (component messaging):
+
+![Communication Diagram](diagrams/communication_diagram.png)
+
+Deployment Diagram (deployment topology):
+
+![Deployment Diagram](diagrams/deployment_diagram.png)
+
+*All images are stored in the repository's `diagrams/` directory; when this repository is pushed to GitHub these figures will be visible directly in the rendered Markdown.*
 
 ---
 
