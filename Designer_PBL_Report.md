@@ -1,116 +1,146 @@
-# UML Designer AI — Project-Based Learning (PBL) Report
-**Course:** Bachelor of Technology in Computer Science and Engineering (Course Code: [Placeholder])
-**Student:** [Student Name] — Roll: [Roll Number]
-**Faculty Guide:** [Guide Name]
-**Department:** Department of Computer Science and Engineering, Geethanjali College of Engineering and Technology
-**Academic Year:** A.Y. 2025–26
+# Project-Based Learning (PBL) Report  
+**Title:** UML Designer AI  
+**Course:** Bachelor of Technology in Computer Science and Engineering (Course Code: [Placeholder])  
+**Student Name:** [Student Name]  
+**Roll Number:** [Roll Number]  
+**Faculty Guide:** [Guide Name]  
+**Department:** Department of Computer Science and Engineering, Geethanjali College of Engineering and Technology  
+**Academic Year:** A.Y. 2025–26  
 
 ---
 
 ## Abstract
 
-UML Designer AI is a full‑stack platform that automatically analyzes source code and natural language prompts to produce UML diagrams. The system combines precise static analysis, heuristic relationship detection, and optional AI‑assisted inference to produce a normalized schema that can be rendered into PlantUML diagrams. A Node.js backend provides a secure API gateway, layered caching and validation; a Python microservice performs language‑specific parsing and relationship inference; and a React frontend renders and exports diagrams for users.
+This project presents UML Designer AI, a full-stack system that automates the extraction, analysis, and visualization of software structure as UML diagrams. The system brings together static code analysis, heuristic relationship detection, and optional AI-assisted inference to produce normalized schemas suitable for diagram generation and documentation. 
 
-This report documents the system design, implementation details, representative code excerpts, testing considerations, and operational guidance. The project emphasizes engineering trade‑offs (accuracy vs. latency), modular analyzers for multi‑language support, and practical measures for secure handling of untrusted inputs. The artifacts included (code snippets and UML diagrams) are drawn directly from the repository and are intended to be verifiable by reviewers.
+The backend provides a secure, performant API gateway with a layered caching strategy to support repeated analyses, while a dedicated Python microservice handles multi-language parsing and relationship inference. The frontend renders diagrams using PlantUML and supports export and interaction. Throughout the implementation, we focused on key engineering trade-offs: balancing accuracy with performance, maintaining modularity for multi-language support, and ensuring robust validation to safely handle untrusted repository inputs. 
 
----
+This report documents our design choices, implementation details, representative code snippets, and evaluation considerations. It serves as a comprehensive PBL submission demonstrating system-level thinking, practical engineering skills, and tested code artifacts.
 
 ## Table of Contents
 
 1. Abstract
 2. Introduction
 3. System Design
-  3.1 Architecture Overview
-  3.2 Modules and Responsibilities
-  3.3 Data and Cache Model
+  3.1 System Architecture
+  3.2 Modules
+  3.3 Backend Design
+  3.4 Diagrams
 4. Implementation
-  4.1 Integration Flow
+  4.1 Module Integration
   4.2 Key Code Snippets
-  4.3 Endpoint Behavior and Error Handling
-5. Testing, Deployment, and Maintenance
-6. Conclusion and Future Work
-7. References
+  4.3 Expanded Code Examples
+5. Conclusion
+6. References
 
 ---
 
 ## 1. Introduction
 
-Modern software projects are increasingly complex and multi‑language. UML diagrams remain a compact and widely understood medium for communicating architecture and design. UML Designer AI was built to reduce the friction of producing accurate diagrams by automating repository analysis and diagram generation.
+UML Designer AI is an open-source, full-stack platform designed to automate the generation, analysis, and visualization of Unified Modeling Language (UML) diagrams from source code or natural language prompts. The project addresses a real-world need for rapid, accurate software architecture visualization, helping bridge communication gaps between technical and non-technical stakeholders.
 
-Primary goals:
+The motivation for this project comes from the complexity of modern software systems and the necessity for clear documentation and design communication. The system enables users—whether they're developers, students, or analysts—to convert codebases or requirements into professional UML diagrams, supporting better collaboration and understanding.
 
-- Transform source code and natural language prompts into validated UML schemas.
-- Make diagram generation repeatable, performant, and safe for untrusted inputs.
-- Provide an extensible architecture so additional languages and diagram types can be added with minimal friction.
+Our learning objectives included mastering full-stack development, API design, code analysis, and applying software engineering principles such as modularity, security, and testing. The technology stack includes Node.js (Express.js), Python (Flask), React (Next.js), Tailwind CSS, PlantUML, and AI/LLM integration for enhanced code analysis.
 
-Key trade‑offs and design principles:
+Throughout development, we emphasized understanding why certain engineering choices were made. The key trade-offs included:
 
-- Accuracy vs. responsiveness: deep analysis yields higher‑quality diagrams but increases latency. The system mitigates this with a two‑tier cache (in‑memory LRU + disk persistence) and configurable timeouts.
-- Modularity: language analyzers are pluggable, enabling incremental extension and independent testing.
-- Security: input validation, upload checks (ZIP magic bytes and path checks), CORS policy enforcement, and rate limiting protect the service from common misuse vectors.
+- **Accuracy vs. performance:** Deep static analysis yields richer diagrams but is slower. The system caches results and offers configurable timeouts to balance responsiveness.
+- **Modularity:** Language-specific analyzers are implemented as pluggable modules, allowing new languages to be added without changing the core pipeline.
+- **Security:** Untrusted repository inputs are treated as potentially adversarial. Uploads are validated, and the backend enforces size/time limits and CORS constraints.
 
-Target users include developers, educators, and students who need rapid, reproducible visualizations of code structure.
+The target audiences for this project include students learning software architecture, engineers who need quick visualizations of unfamiliar codebases, and educators who want reproducible diagram generation for assignments.
 
 ---
 
 ## 2. System Design
 
-### 2.1 Architecture Overview
+### System Architecture
 
-UML Designer AI follows a modular client–server pattern:
+UML Designer AI follows a modular, client-server architecture with three main components:
 
-- Frontend (Next.js + React): user interface for submitting GitHub URLs or ZIP uploads, rendering diagrams, and exporting artifacts.
-- Backend (Node.js + Express): API gateway, request validation, caching, monitoring, and proxying to the parser service.
-- Python Parser (Flask): language‑specific analyzers that parse source files, detect relationships, and produce a normalized schema consumable by the PlantUML generator.
+- **Frontend:** A React-based web application handles user interaction, diagram rendering, and export functionality.
+- **Backend:** A Node.js Express API gateway manages requests, caching, security, and proxying to the parser.
+- **Python Parser Microservice:** Analyzes code repositories, infers relationships, and generates normalized schemas for UML diagrams.
 
-The control flow is: User → Frontend → Backend → Python Parser → Backend → Frontend.
+The flow of control follows a clear path:  
+User → Frontend → Backend → Python Parser → Backend → Frontend → User
 
-### 2.2 Modules and Responsibilities
+### Modules
 
-Frontend
+The system is organized into three primary modules:
 
-- Accepts input (GitHub URL or ZIP upload) and submits it to the backend.
-- Encodes PlantUML and fetches SVG/PNG renderings for display and export.
+**Frontend:**  
+The user interface handles input (code or prompt), diagram visualization, and export. Key components include `HomePage`, `PlantUMLDiagram`, and `GlobalErrorBoundary`.
 
-Backend
+**Backend:**  
+API routing (`api.js`) manages caching (memory/disk), security (CORS, validation), logging, and monitoring. The main endpoint is `/analyze` (POST for code/prompt analysis).
 
-- Exposes endpoints such as `/analyze`, `/generate-plantuml`, and `/uml-from-prompt`.
-- Implements a memory+disk caching layer keyed by repository URL and optionally commit hash.
-- Validates responses from the parser using a JSON schema validator and injects safe defaults when needed.
-- Controls Python parser availability and can auto‑start a local parser when configured.
+**Python Parser:**  
+Language-specific analyzers (Python, Java, C#, etc.) handle relationship detection, AI enhancement, and schema normalization. Core modules include `analyze.py`, `analyzers/`, `relationship/`, and `plantuml/`.
 
-Python Parser
+### Backend Design
 
-- Contains language analyzers under `analyzers/` and a `RelationshipDetector` for cross‑file relations.
-- Supports AST‑based parsing for Python, `javalang` for Java, and targeted heuristics for other languages.
-- Returns a normalized schema containing `meta`, language arrays (e.g., `python`, `java`), `relations`, `endpoints`, `patterns`, and `layers`.
+Rather than using a traditional database, the system relies on a disk-based cache for analysis results. The caching strategy employs an LRU (Least Recently Used) in-memory cache along with persistent disk cache, keyed by repository URL and commit hash. This approach provides fast access for repeated analyses while maintaining results across server restarts.
 
-### 2.3 Data and Cache Model
+### Diagrams
 
-- Cache key: repository URL or `url@commit` when commit metadata is available.
-- In‑memory cache: a Map used as a simple insertion‑ordered LRU whose capacity is governed by `MAX_CACHE_ENTRIES`.
-- Disk cache: TTL‑based JSON files written to a cache directory to persist analysis results across restarts.
+Below are the primary UML diagrams generated for this project. These images are stored in the `diagrams/` folder and will render directly when viewing this file on GitHub.
+
+**Class Diagram** (core classes and relationships):
+
+![Class Diagram](diagrams/class_diagram.png)
+
+**Use Case Diagram** (user interactions and features):
+
+![Use Case Diagram](diagrams/usecase_diagram.png)
+
+**Activity Diagram** (workflow):
+
+![Activity Diagram](diagrams/activity_diagram.png)
+
+**State Diagram** (system states):
+
+![State Diagram](diagrams/state_diagram.png)
+
+**Sequence Diagram** (request flow):
+
+![Sequence Diagram](diagrams/sequence_diagram.png)
+
+**Component Diagram** (modules and connections):
+
+![Component Diagram](diagrams/component_diagram.png)
+
+**Communication Diagram** (component messaging):
+
+![Communication Diagram](diagrams/communication_diagram.png)
+
+**Deployment Diagram** (deployment topology):
+
+![Deployment Diagram](diagrams/deployment_diagram.png)
 
 ---
 
 ## 3. Implementation
 
-This section highlights implementation patterns, representative code excerpts, and the way endpoints validate and proxy requests.
+### Module Integration
 
-### 3.1 Integration Flow
+The implementation brings together three main components:
 
-- A user provides a GitHub URL or uploads a ZIP.
-- Backend validates the input (GitHub URL format, ZIP magic bytes, safe upload path).
-- Backend checks memory and disk cache for an existing analysis. If present and fresh, it returns cached data.
-- Otherwise, the backend proxies the request to the Python parser and validates the returned schema.
-- Valid schemas are stored in memory and persisted to disk; invalid schemas produce clear validation errors.
+**Frontend:**  
+Built with Next.js and React, using Tailwind CSS for styling. The `PlantUMLDiagram.js` component renders diagrams using a PlantUML server, handles errors, and supports SVG/PNG export.
 
-### 3.2 Key Code Snippets
+**Backend:**  
+Express.js routes requests, applies rate limiting, validates input, and manages the cache. Security features include CORS, request size limits, and input sanitization. Logging and monitoring are handled via Winston and custom metrics.
 
-The examples below are taken from the repository and simplified for readability while preserving the original logic.
+**Python Parser:**  
+Uses AST parsing for Python, `javalang` for Java, and regex for other languages. Relationship detection is managed by `RelationshipDetector`. Optional AI enhancement uses Groq/OpenAI-compatible APIs.
 
-#### Python file analysis (extract of `python` analyzer)
+### Key Code Snippets
 
+The following code snippets demonstrate the core functionality of each component:
+
+**1. Python File Analysis (PythonAnalyzer):**
 ```python
 def analyze_file(self, file_path: str, package_path: str = "") -> List[Dict]:
     classes = []
@@ -126,11 +156,54 @@ def analyze_file(self, file_path: str, package_path: str = "") -> List[Dict]:
                 self.add_class_name(class_dict['class'])
     return classes
 ```
+This function extracts classes, fields, and methods from Python files using AST.
 
-This snippet demonstrates AST traversal to locate class definitions and extract class metadata.
+**2. Java File Analysis (JavaAnalyzer):**
+```python
+def analyze_file(self, file_path: str, package_path: str = "") -> List[Dict]:
+    classes = []
+    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+        source = f.read()
+    tree = javalang.parse.parse(source)
+    for path_nodes, cls in tree.filter(javalang.tree.ClassDeclaration):
+        class_dict = self._analyze_class(cls, tree, source, package_path)
+        if class_dict:
+            classes.append(class_dict)
+            self.add_class_name(class_dict['class'])
+    return classes
+```
+This uses `javalang` to parse Java files and extract class/interface details.
 
-#### Caching implementation (excerpts from `backend/routes/api.js`)
+**3. Relationship Detection:**
+```python
+def validate_relationships(self) -> List[Dict]:
+    valid_relationships = []
+    for rel in self.relationships:
+        if self._is_valid_relationship(rel):
+            valid_relationships.append(rel)
+    return valid_relationships
+```
+This validates and deduplicates relationships between classes.
 
+**4. API Request Flow (Backend):**
+```javascript
+router.post('/analyze', asyncHandler(async (req, res) => {
+  // Validate input, check cache, proxy to Python parser, return result
+}));
+```
+This handles analysis requests, applying caching and security checks.
+
+**5. Frontend Diagram Rendering (React):**
+```javascript
+export default function PlantUMLDiagram({ uml, format = 'svg', server }) {
+  const encoded = plantumlEncoder.encode(uml);
+  const src = `${server}/${format}/${encoded}`;
+  return <img src={src} alt="UML Diagram" />;
+}
+```
+This renders UML diagrams in the frontend using a PlantUML server.
+
+**6. Caching Strategy (Backend):**
 ```javascript
 // Cache key helper
 const cacheKey = (url, commit) => (commit ? `${url}@${commit}` : url);
@@ -178,100 +251,219 @@ if (memCache.has(cacheKey)) {
   return memCache.get(cacheKey);
 }
 ```
+This implements cache key generation and lookup for backend caching.
 
-These helpers implement the two‑tier caching strategy used by the `/analyze` endpoint.
+### Expanded Code Examples
 
-#### Repository analysis endpoint (behavior summary)
+The following examples provide more detailed insight into the system's core functionality:
 
-- Validate GitHub URL format using a strict pattern.
-- Check memory cache and then disk cache.
-- Proxy to Python parser (`/analyze`) with a configurable timeout.
-- Validate the returned schema using `validateUmlSchema`; inject safe default `meta` when missing.
-- Cache and persist validated results to memory and disk, and return the schema to the client.
+**7. Backend: Repository Analysis Handler**
 
-A condensed portion of the request/response flow (omitting boilerplate error wrapping):
+This code from `backend/routes/api.js` shows how the system handles repository analysis requests, including cache lookup, proxying to the Python parser, schema validation, and cache writes:
 
 ```javascript
-const response = await http.post(`${pythonUrl}/analyze`, { githubUrl: v.url }, { timeout });
-const data = response?.data ?? {};
+// POST /analyze (body: { githubUrl } or upload field repoZip)
+router.post('/analyze', upload.single('repoZip'), asyncHandler(async (req, res) => {
+  const timeout = Number(process.env.ANALYZE_TIMEOUT_MS || 120_000);
+  const { githubUrl } = req.body || {};
 
-// Inject default meta if missing
-if (data && data.schema && (!data.schema.meta || typeof data.schema.meta !== 'object')) {
-  data.schema.meta = { classes_found: 0, files_scanned: 0, languages: [], system: 'UnknownSystem' };
+  if (githubUrl) {
+    const v = validateGitHubUrl(githubUrl);
+    if (!v.isValid) throw createValidationError(v.error);
+
+    const k = cacheKey(v.url);
+    const cached = memCache.get(k);
+    if (cached && Date.now() - cached.ts < cacheTtlMs) {
+      return res.status(200).json(cached.data);
+    }
+
+    const disk = await readDisk(k);
+    if (disk) {
+      memCache.set(k, { data: disk, ts: Date.now() });
+      ensureCapacity();
+      return res.status(200).json(disk);
+    }
+
+    try {
+      const response = await http.post(`${pythonUrl}/analyze`, { githubUrl: v.url }, { timeout });
+      const data = response?.data ?? {};
+
+      // Patch: Inject default meta if missing
+      if (data && data.schema && (!data.schema.meta || typeof data.schema.meta !== 'object')) {
+        data.schema.meta = { classes_found: 0, files_scanned: 0, languages: [], system: 'UnknownSystem' };
+      }
+
+      // Validate schema structure
+      const validation = validateUmlSchema(data);
+      if (!validation.isValid) {
+        logger.warn('Invalid schema received from Python parser', { errors: validation.errors, url: v.url });
+        throw createValidationError(`Invalid schema structure: ${validation.errors.join(', ')}`);
+      }
+
+      // Cache and persist
+      const urlKey = cacheKey(v.url);
+      memCache.set(urlKey, { data, ts: Date.now() });
+      ensureCapacity();
+      writeDisk(urlKey, data).catch(() => {});
+
+      return res.status(response.status || 200).json(data);
+    } catch (err) {
+      if (err?.code === 'ECONNABORTED' || err?.code === 'ETIMEDOUT') throw createTimeoutError('Repository analysis');
+      if (err?.response) {
+        const { status, data } = err.response;
+        if (status >= 400 && status < 500) throw createValidationError(data?.error || `Analysis failed: ${status}`);
+      }
+      throw createExternalServiceError('Python parser', err);
+    }
+  }
+
+  if (req.file) {
+    // File upload handling (ZIP validation, proxy to parser, validate response)
+    ...
+  }
+
+  throw createValidationError('No repository provided');
+}));
+```
+
+**8. Backend: PlantUML Generation Proxy**
+
+This code from `backend/routes/api.js` handles PlantUML generation requests with validation and outbound calls:
+
+```javascript
+// POST /generate-plantuml
+router.post('/generate-plantuml', asyncHandler(async (req, res) => {
+  const timeout = Number(process.env.GENERATE_TIMEOUT_MS || 4000);
+  const { schema, diagram_type } = req.body || {};
+  if (!schema) throw createValidationError('schema is required');
+  if (!diagram_type) throw createValidationError('diagram_type is required');
+
+  const validTypes = ['class','sequence','usecase','state','activity','component','communication','deployment'];
+  if (!validTypes.includes(diagram_type)) throw createValidationError(`Invalid diagram_type: ${diagram_type}`);
+
+  try {
+    const response = await http.post(`${pythonUrl}/generate-plantuml`, { schema, diagram_type }, { timeout });
+    return res.status(response.status || 200).json(response.data ?? {});
+  } catch (err) {
+    // Handle timeout / validation / external errors consistently
+    if (err?.code === 'ECONNABORTED' || err?.code === 'ETIMEDOUT') throw createExternalServiceError('Python parser', err);
+    if (err?.response) {
+      const { status, data } = err.response;
+      if (status >= 400 && status < 500) throw createValidationError(data?.error || `PlantUML generation failed: ${status}`);
+    }
+    throw createExternalServiceError('Python parser', err);
+  }
+}));
+```
+
+**9. Server Bootstrap and Graceful Shutdown**
+
+This code from `backend/server.js` shows the production start and shutdown handling:
+
+```javascript
+const PORT = process.env.PORT || 3001;
+let server;
+if (process.env.NODE_ENV === 'test') {
+  logger.info('Server running in test mode: not starting HTTP listener');
+} else {
+  server = app.listen(PORT, () => {
+    logger.info(`🚀 Production backend server started on port ${PORT}`, { port: PORT, environment: process.env.NODE_ENV || 'production' });
+    startPeriodicMetricsLogging();
+  });
 }
 
-const validation = validateUmlSchema(data);
-if (!validation.isValid) throw createValidationError(`Invalid schema structure: ${validation.errors.join(', ')}`);
-
-memCache.set(urlKey, { data, ts: Date.now() });
-ensureCapacity();
-writeDisk(urlKey, data).catch(() => {});
-
-return res.status(response.status || 200).json(data);
+const gracefulShutdown = (signal) => {
+  logger.info(`\n🛑 ${signal} received. Starting graceful shutdown...`);
+  server.close(() => { logger.info('✅ HTTP server closed'); process.exit(0); });
+  setTimeout(() => { logger.error('❌ Forced shutdown after timeout'); process.exit(1); }, 10000);
+};
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 ```
 
-#### PlantUML generation proxy (validation + forward)
+**10. Python Parser: Worker Function for Parallel File Analysis**
 
-The `/generate-plantuml` endpoint validates the incoming request body (schema and diagram_type) and forwards it to the parser's `/generate-plantuml` endpoint. Timeouts and error types (validation, external service) are handled consistently so clients get meaningful responses.
+This code from `python-parser/analyze.py` shows the picklable worker for multiprocessing:
 
-```javascript
-const response = await http.post(`${pythonUrl}/generate-plantuml`, { schema, diagram_type }, { timeout });
-return res.status(response.status || 200).json(response.data ?? {});
+```python
+def _analyze_file_worker(args):
+    file_path, repo_path = args
+    try:
+        from analyzers import AnalyzerFactory
+        from utils import FileUtils
+        factory = AnalyzerFactory()
+        analyzer = factory.get_analyzer(file_path)
+        if not analyzer:
+            return None
+        package_path = FileUtils.get_package_path(file_path, repo_path)
+        classes = analyzer.analyze_file(file_path, package_path)
+        lang_key = analyzer.get_language_name()
+        relationships = analyzer.relationships + analyzer.compositions + analyzer.usages
+        return (lang_key, classes, relationships)
+    except Exception as e:
+        logging.warning(f"Failed to analyze {file_path}: {e}")
+        return None
 ```
 
-### 3.3 Endpoint Error Handling and Resilience
+### Sample Output
 
-- Timeouts are translated into domain‑specific timeout errors for clearer client messaging.
-- 4xx responses from the parser are surfaced as validation errors; 5xx responses become internal/external service errors.
-- The backend attempts to auto‑start a local Python parser when configured for development/CI convenience (see `pythonServiceManager`). This improves developer experience while production deployments typically use a managed parser service.
+The system produces two main types of output:
 
----
+**API Response:**  
+Returns a JSON schema with detected classes, fields, methods, and relationships for each language.
 
-## 4. Testing, Deployment, and Maintenance
+**Frontend Render:**  
+Users submit Github Repo's Link or a prompt and receive an interactive UML diagram (SVG/PNG) with options to export or share.
 
-Testing
+### APIs, Libraries, Frameworks
 
-- The repository contains unit and integration tests under `__tests__` for backend, frontend, and parser components. Tests exercise endpoint behavior, schema validation, cache behavior, and PlantUML generation.
-- Maintain tests whenever analyzers are modified—language grammars and heuristics change over time and will otherwise cause regressions.
+The project utilizes the following technologies:
 
-Deployment and configuration
+**Backend:** Express.js, Winston, Multer, Axios, PM2, CORS, compression.
 
-- The backend uses environment variables for tuning: `ANALYZE_TIMEOUT_MS`, `GENERATE_TIMEOUT_MS`, `CACHE_TTL_MS`, `MAX_CACHE_ENTRIES`, `DISK_CACHE_DIR`, `ALLOWED_ORIGINS`, and `ADMIN_TOKEN`.
-- For local development the backend can auto‑start the Python parser; in production, point `PYTHON_PARSER_URL` at a stable parser service and tune cache TTLs.
+**Frontend:** Next.js, React, Tailwind CSS, PlantUML encoder.
 
-Observability and performance
-
-- The project uses structured logging and periodic metrics logging. Store logs centrally and enable monitoring of parser availability, request latencies, cache hit ratios, and disk usage.
-- Tune rate limiting (`RATE_WINDOW_MS`, `RATE_MAX`) to protect the service while allowing reasonable usage for classroom or CI scenarios.
-
-Maintenance guidance
-
-- Keep `ALLOWED_ORIGINS` and `ADMIN_TOKEN` configured in production; protect admin endpoints.
-- Consider incremental analysis (future work) to avoid reprocessing entire repositories when small changes occur.
+**Python Parser:** Flask, javalang, ast, diskcache, Groq/OpenAI API.
 
 ---
 
-## 5. Conclusion and Future Work
+## 4. Conclusion
 
-UML Designer AI demonstrates a pragmatic engineering approach to automating UML generation: combine language‑aware parsing, relationship detection, and safe, performant API patterns. The project successfully meets its goals of producing validated UML schemas and rendering them into PlantUML diagrams for consumption by the frontend.
+UML Designer AI successfully automates the generation and visualization of UML diagrams from code and natural language, meeting its objectives of improving software documentation and communication.
 
-Lessons learned and operational advice:
+**Challenges:**  
+We encountered several challenges during development. Multi-language parsing required robust AST and regex handling. Ensuring security and performance in API design was another significant hurdle. Integrating AI for enhanced analysis accuracy also presented unique difficulties.
 
-- Tests are essential. A small change in an analyzer can dramatically change relationships and diagram structure; coverage for analyzers prevents regressions.
-- Observability matters. Parser availability and outbound call failures are the most frequent operational issues; log and monitor them.
-- Tune caching according to workload. For classroom use, longer cache TTLs are helpful; for CI use, shorter TTLs and commit‑specific caching are preferable.
+Our solutions included developing a modular architecture, implementing comprehensive testing, and creating a layered caching system.
 
-Recommended next steps and improvements:
+**Key takeaways:**  
+Through this project, we gained hands-on experience with full-stack development and microservice integration. We applied software engineering principles in real-world scenarios and saw the impact firsthand. The project streamlines documentation, aids learning, and supports collaborative design.
 
-- Incremental reanalysis: support reanalysis of changed files only, rather than entire repositories.
-- Enhanced exports: produce optimized SVG, and allow interactive annotations linking diagram elements back to source file locations.
-- CI/GitHub Action: expose an action or CLI for automatic diagram generation in CI pipelines.
+### Reflections and Maintainer's Guidance
 
-Overall, the repository provides a solid foundation for automated diagram generation and is well suited for continued extension and classroom adoption.
+**Testing and validation:** The project includes unit and integration tests (see `__tests__` folders) that exercise the analyze/generate endpoints and parser workers. It's important to maintain tests alongside analyzer changes to prevent regressions when language grammars evolve.
+
+**Observability:** Structured logging and metrics (periodic metrics logging) are used across the backend. Keep these enabled in staging to catch parser availability issues early.
+
+**Performance tuning:** Production deployments should tune `CACHE_TTL_MS`, `MAX_CACHE_ENTRIES`, and `ANALYZE_TIMEOUT_MS` according to expected repository sizes and traffic patterns. The disk cache provides persistence across restarts, so monitor disk usage.
+
+**Security:** Keep `ALLOWED_ORIGINS` and `ADMIN_TOKEN` properly configured. Treat uploaded repository artifacts as untrusted input and prefer GitHub URLs over direct ZIP uploads where possible.
+
+### Future Work
+
+Looking ahead, several enhancements could improve the system:
+
+**Incremental analysis:** Support partial re-analysis of repositories (by file or directory) to reduce reprocessing cost after small changes.
+
+**Richer diagram exports:** Add direct SVG optimization and interactive diagram annotations linking back to code locations.
+
+**CI integration:** Expose a CLI or GitHub Action so repo owners can generate and store UML artifacts as part of CI pipelines.
+
+UML Designer AI demonstrates a balance of static analysis rigor, practical engineering for reliability, and user-facing simplicity. The modular design and comprehensive tests make it a strong foundation for continued research or classroom use.
 
 ---
 
-## 6. References
+## 5. References
 
 1. Node.js Documentation: https://nodejs.org/
 2. Express.js Documentation: https://expressjs.com/
@@ -289,5 +481,6 @@ Overall, the repository provides a solid foundation for automated diagram genera
 
 ---
 
-*Diagrams used in this report are stored in the repository's `diagrams/` directory (e.g., `diagrams/class_diagram.png`) and will render when the repository is viewed on GitHub.*
-      if (err?.response) {
+**Note:**  
+UML diagrams referenced in this report are available in the project's `/diagrams` folder and will render when viewing this document on GitHub.  
+Student and faculty details are placeholders and should be updated for final submission.
