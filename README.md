@@ -11,39 +11,70 @@
 
 
 
-<h2 align="center">UML Diagram Gallery</h2>
+
+---
+
+## Visual Overview
+
+UML Designer AI provides a complete visual map of your system, from user actions to backend architecture. Here’s how your codebase is represented:
+
+### 1. Class Structure
+Shows the main classes and their relationships.
+
 <p align="center">
-	<img src="diagrams/class_diagram.png" alt="Class Diagram" width="400"/>
-	<br><b>Class Diagram</b>
+	<img src="diagrams/class_diagram.png" alt="Class Diagram" width="420"/>
+	<br><i>Class Diagram: Core system classes and their connections</i>
 </p>
+
+### 2. Use Case Flow
+Illustrates how users interact with the system.
+
 <p align="center">
-	<img src="diagrams/usecase_diagram.png" alt="Use Case Diagram" width="400"/>
-	<br><b>Use Case Diagram</b>
+	<img src="diagrams/usecase_diagram.png" alt="Use Case Diagram" width="420"/>
+	<br><i>Use Case Diagram: User actions and system features</i>
 </p>
-<p align="center">
-	<img src="diagrams/activity_diagram.png" alt="Activity Diagram" width="400"/>
-	<br><b>Activity Diagram</b>
-</p>
-<p align="center">
-	<img src="diagrams/state_diagram.png" alt="State Diagram" width="400"/>
-	<br><b>State Diagram</b>
-</p>
-<p align="center">
-	<img src="diagrams/sequence_diagram.png" alt="Sequence Diagram" width="400"/>
-	<br><b>Sequence Diagram</b>
-</p>
-<p align="center">
-	<img src="diagrams/component_diagram.png" alt="Component Diagram" width="400"/>
-	<br><b>Component Diagram</b>
-</p>
-<p align="center">
-	<img src="diagrams/communication_diagram.png" alt="Communication Diagram" width="400"/>
-	<br><b>Communication Diagram</b>
-</p>
-<p align="center">
-	<img src="diagrams/deployment_diagram.png" alt="Deployment Diagram" width="400"/>
-	<br><b>Deployment Diagram</b>
-</p>
+
+### 3. Activity & State
+Shows the workflow and system states during analysis and diagram generation.
+
+<div align="center" style="display:flex; gap:32px; flex-wrap:wrap; justify-content:center;">
+	<div>
+		<img src="diagrams/activity_diagram.png" alt="Activity Diagram" width="350"/>
+		<br><i>Activity Diagram: End-to-end workflow</i>
+	</div>
+	<div>
+		<img src="diagrams/state_diagram.png" alt="State Diagram" width="350"/>
+		<br><i>State Diagram: System states</i>
+	</div>
+</div>
+
+### 4. Sequence & Communication
+Depicts how components interact to process requests.
+
+<div align="center" style="display:flex; gap:32px; flex-wrap:wrap; justify-content:center;">
+	<div>
+		<img src="diagrams/sequence_diagram.png" alt="Sequence Diagram" width="350"/>
+		<br><i>Sequence Diagram: Request flow</i>
+	</div>
+	<div>
+		<img src="diagrams/communication_diagram.png" alt="Communication Diagram" width="350"/>
+		<br><i>Communication Diagram: Component messaging</i>
+	</div>
+</div>
+
+### 5. Component & Deployment
+Maps out the system’s architecture and deployment.
+
+<div align="center" style="display:flex; gap:32px; flex-wrap:wrap; justify-content:center;">
+	<div>
+		<img src="diagrams/component_diagram.png" alt="Component Diagram" width="350"/>
+		<br><i>Component Diagram: Major modules</i>
+	</div>
+	<div>
+		<img src="diagrams/deployment_diagram.png" alt="Deployment Diagram" width="350"/>
+		<br><i>Deployment Diagram: Infrastructure layout</i>
+	</div>
+</div>
 
 
 ---
