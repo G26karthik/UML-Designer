@@ -10,8 +10,39 @@
 ---
 
 
+
+<h2 align="center">UML Diagram Gallery</h2>
 <p align="center">
-  <img src="diagrams/class_diagram.png" alt="Class Diagram Example" width="500"/>
+	<img src="diagrams/class_diagram.png" alt="Class Diagram" width="400"/>
+	<br><b>Class Diagram</b>
+</p>
+<p align="center">
+	<img src="diagrams/usecase_diagram.png" alt="Use Case Diagram" width="400"/>
+	<br><b>Use Case Diagram</b>
+</p>
+<p align="center">
+	<img src="diagrams/activity_diagram.png" alt="Activity Diagram" width="400"/>
+	<br><b>Activity Diagram</b>
+</p>
+<p align="center">
+	<img src="diagrams/state_diagram.png" alt="State Diagram" width="400"/>
+	<br><b>State Diagram</b>
+</p>
+<p align="center">
+	<img src="diagrams/sequence_diagram.png" alt="Sequence Diagram" width="400"/>
+	<br><b>Sequence Diagram</b>
+</p>
+<p align="center">
+	<img src="diagrams/component_diagram.png" alt="Component Diagram" width="400"/>
+	<br><b>Component Diagram</b>
+</p>
+<p align="center">
+	<img src="diagrams/communication_diagram.png" alt="Communication Diagram" width="400"/>
+	<br><b>Communication Diagram</b>
+</p>
+<p align="center">
+	<img src="diagrams/deployment_diagram.png" alt="Deployment Diagram" width="400"/>
+	<br><b>Deployment Diagram</b>
 </p>
 
 
