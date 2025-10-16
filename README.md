@@ -9,9 +9,11 @@
 
 ---
 
+
 <p align="center">
-	<img src="https://www.plantuml.com/plantuml/svg/SoWkIImgAStDuKhEIImkLaZ8J4vLIyrApCbCJbMmKiX8pSd9pSd91G00" alt="UML Example" width="400"/>
+  <img src="diagrams/class_diagram.png" alt="Class Diagram Example" width="500"/>
 </p>
+
 
 ---
 
@@ -126,8 +128,9 @@ python app.py
 3. Choose your diagram type (Class, Sequence, etc.)
 4. Click **Generate** and see your diagram appear!
 
+
 <p align="center">
-	<img src="https://www.plantuml.com/plantuml/svg/SoWkIImgAStDuKhEIImkLaZ8J4vLIyrApCbCJbMmKiX8pSd9pSd91G00" alt="UML Example" width="400"/>
+  <img src="diagrams/activity_diagram.png" alt="Activity Diagram Example" width="500"/>
 </p>
 
 ---
