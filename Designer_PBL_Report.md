@@ -184,6 +184,147 @@ if (memoryCache.has(cacheKey)) {
 ```
 *Implements cache key generation and lookup for backend caching.*
 
+
+7) Backend: repository analysis handler (`backend/routes/api.js`) — cache lookup, proxy to Python parser, schema validation and cache write:
+
+```javascript
+// POST /analyze (body: { githubUrl } or upload field repoZip)
+router.post('/analyze', upload.single('repoZip'), asyncHandler(async (req, res) => {
+  const timeout = Number(process.env.ANALYZE_TIMEOUT_MS || 120_000);
+  const { githubUrl } = req.body || {};
+
+  if (githubUrl) {
+    const v = validateGitHubUrl(githubUrl);
+    if (!v.isValid) throw createValidationError(v.error);
+
+    const k = cacheKey(v.url);
+    const cached = memCache.get(k);
+    if (cached && Date.now() - cached.ts < cacheTtlMs) {
+      return res.status(200).json(cached.data);
+    }
+
+    const disk = await readDisk(k);
+    if (disk) {
+      memCache.set(k, { data: disk, ts: Date.now() });
+      ensureCapacity();
+      return res.status(200).json(disk);
+    }
+
+    try {
+      const response = await http.post(`${pythonUrl}/analyze`, { githubUrl: v.url }, { timeout });
+      const data = response?.data ?? {};
+
+      // Patch: Inject default meta if missing
+      if (data && data.schema && (!data.schema.meta || typeof data.schema.meta !== 'object')) {
+        data.schema.meta = { classes_found: 0, files_scanned: 0, languages: [], system: 'UnknownSystem' };
+      }
+
+      // Validate schema structure
+      const validation = validateUmlSchema(data);
+      if (!validation.isValid) {
+        logger.warn('Invalid schema received from Python parser', { errors: validation.errors, url: v.url });
+        throw createValidationError(`Invalid schema structure: ${validation.errors.join(', ')}`);
+      }
+
+      // Cache and persist
+      const urlKey = cacheKey(v.url);
+      memCache.set(urlKey, { data, ts: Date.now() });
+      ensureCapacity();
+      writeDisk(urlKey, data).catch(() => {});
+
+      return res.status(response.status || 200).json(data);
+    } catch (err) {
+      if (err?.code === 'ECONNABORTED' || err?.code === 'ETIMEDOUT') throw createTimeoutError('Repository analysis');
+      if (err?.response) {
+        const { status, data } = err.response;
+        if (status >= 400 && status < 500) throw createValidationError(data?.error || `Analysis failed: ${status}`);
+      }
+      throw createExternalServiceError('Python parser', err);
+    }
+  }
+
+  if (req.file) {
+    // File upload handling (ZIP validation, proxy to parser, validate response)
+    ...
+  }
+
+  throw createValidationError('No repository provided');
+}));
+```
+
+8) Backend: PlantUML generation proxy (`backend/routes/api.js`) — validation and outbound call:
+
+```javascript
+// POST /generate-plantuml
+router.post('/generate-plantuml', asyncHandler(async (req, res) => {
+  const timeout = Number(process.env.GENERATE_TIMEOUT_MS || 4000);
+  const { schema, diagram_type } = req.body || {};
+  if (!schema) throw createValidationError('schema is required');
+  if (!diagram_type) throw createValidationError('diagram_type is required');
+
+  const validTypes = ['class','sequence','usecase','state','activity','component','communication','deployment'];
+  if (!validTypes.includes(diagram_type)) throw createValidationError(`Invalid diagram_type: ${diagram_type}`);
+
+  try {
+    const response = await http.post(`${pythonUrl}/generate-plantuml`, { schema, diagram_type }, { timeout });
+    return res.status(response.status || 200).json(response.data ?? {});
+  } catch (err) {
+    // Handle timeout / validation / external errors consistently
+    if (err?.code === 'ECONNABORTED' || err?.code === 'ETIMEDOUT') throw createExternalServiceError('Python parser', err);
+    if (err?.response) {
+      const { status, data } = err.response;
+      if (status >= 400 && status < 500) throw createValidationError(data?.error || `PlantUML generation failed: ${status}`);
+    }
+    throw createExternalServiceError('Python parser', err);
+  }
+}));
+```
+
+9) Server bootstrap and graceful shutdown (`backend/server.js`) — production start and shutdown handling:
+
+```javascript
+const PORT = process.env.PORT || 3001;
+let server;
+if (process.env.NODE_ENV === 'test') {
+  logger.info('Server running in test mode: not starting HTTP listener');
+} else {
+  server = app.listen(PORT, () => {
+    logger.info(`🚀 Production backend server started on port ${PORT}`, { port: PORT, environment: process.env.NODE_ENV || 'production' });
+    startPeriodicMetricsLogging();
+  });
+}
+
+const gracefulShutdown = (signal) => {
+  logger.info(`\n🛑 ${signal} received. Starting graceful shutdown...`);
+  server.close(() => { logger.info('✅ HTTP server closed'); process.exit(0); });
+  setTimeout(() => { logger.error('❌ Forced shutdown after timeout'); process.exit(1); }, 10000);
+};
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+```
+
+10) Python parser: worker function for parallel file analysis (`python-parser/analyze.py`) — picklable worker for multiprocessing:
+
+```python
+def _analyze_file_worker(args):
+    file_path, repo_path = args
+    try:
+        from analyzers import AnalyzerFactory
+        from utils import FileUtils
+        factory = AnalyzerFactory()
+        analyzer = factory.get_analyzer(file_path)
+        if not analyzer:
+            return None
+        package_path = FileUtils.get_package_path(file_path, repo_path)
+        classes = analyzer.analyze_file(file_path, package_path)
+        lang_key = analyzer.get_language_name()
+        relationships = analyzer.relationships + analyzer.compositions + analyzer.usages
+        return (lang_key, classes, relationships)
+    except Exception as e:
+        logging.warning(f"Failed to analyze {file_path}: {e}")
+        return None
+```
+
 ### Sample Output (Described)
 
 - **API Response:**  
