@@ -60,19 +60,14 @@ Depicts how components interact to process requests.
 	</div>
 </div>
 
-### 5. Component & Deployment
-Maps out the system’s architecture and deployment.
 
-<div align="center" style="display:flex; gap:32px; flex-wrap:wrap; justify-content:center;">
-	<div>
-		<img src="diagrams/component_diagram.png" alt="Component Diagram" width="350"/>
-		<br><i>Component Diagram: Major modules</i>
-	</div>
-	<div>
-		<img src="diagrams/deployment_diagram.png" alt="Deployment Diagram" width="350"/>
-		<br><i>Deployment Diagram: Infrastructure layout</i>
-	</div>
-</div>
+### 5. Component Overview
+Shows the major modules and their connections.
+
+<p align="center">
+	<img src="diagrams/component_diagram.png" alt="Component Diagram" width="350"/>
+	<br><i>Component Diagram: Major modules</i>
+</p>
 
 
 ---
