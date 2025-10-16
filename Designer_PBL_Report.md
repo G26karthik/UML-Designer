@@ -51,15 +51,15 @@ User → Frontend → Backend → Python Parser → Backend → Frontend → Use
 
 ### Diagrams (Conceptual Role)
 
-- **Class Diagram:** Shows main system classes and their relationships ([View](diagrams/class_diagram.puml)).
-- **Use Case Diagram:** Illustrates user actions and system features ([View](diagrams/usecase_diagram.puml)).
-- **Activity Diagram:** Depicts workflow from repository selection to diagram generation and export ([View](diagrams/activity_diagram.puml)).
-- **State Diagram:** Represents system states ([View](diagrams/state_diagram.puml)).
-- **Sequence Diagram:** Details request flow ([View](diagrams/sequence_diagram.puml)).
-- **Component Diagram:** Outlines major modules and their connections ([View](diagrams/component_diagram.puml)).
-- **Communication Diagram:** Shows message passing ([View](diagrams/communication_diagram.puml)).
+- **Class Diagram:** Shows main system classes and their relationships ([View Online](https://github.com/<your-org>/UML-Designer/raw/main/diagrams/class_diagram.puml)).
+- **Use Case Diagram:** Illustrates user actions and system features ([View Online](https://github.com/<your-org>/UML-Designer/raw/main/diagrams/usecase_diagram.puml)).
+- **Activity Diagram:** Depicts workflow from repository selection to diagram generation and export ([View Online](https://github.com/<your-org>/UML-Designer/raw/main/diagrams/activity_diagram.puml)).
+- **State Diagram:** Represents system states ([View Online](https://github.com/<your-org>/UML-Designer/raw/main/diagrams/state_diagram.puml)).
+- **Sequence Diagram:** Details request flow ([View Online](https://github.com/<your-org>/UML-Designer/raw/main/diagrams/sequence_diagram.puml)).
+- **Component Diagram:** Outlines major modules and their connections ([View Online](https://github.com/<your-org>/UML-Designer/raw/main/diagrams/component_diagram.puml)).
+- **Communication Diagram:** Shows message passing ([View Online](https://github.com/<your-org>/UML-Designer/raw/main/diagrams/communication_diagram.puml)).
 
-*Diagrams are referenced from the project’s `/diagrams` folder and README visual overview.*
+*Diagrams are referenced from the project’s `/diagrams` folder and README visual overview. After pushing to GitHub, these links will allow online viewing of the diagrams.*
 
 ---
 
@@ -133,6 +133,26 @@ router.post('/analyze', asyncHandler(async (req, res) => {
 }));
 ```
 *Handles analysis requests, applies caching and security checks.*
+
+**5. Frontend Diagram Rendering (React):**
+```javascript
+export default function PlantUMLDiagram({ uml, format = 'svg', server }) {
+  const encoded = plantumlEncoder.encode(uml);
+  const src = `${server}/${format}/${encoded}`;
+  return <img src={src} alt="UML Diagram" />;
+}
+```
+*Renders UML diagrams in the frontend using PlantUML server.*
+
+**6. Caching Strategy (Backend):**
+```javascript
+const cacheKey = (url, commit) => (commit ? `${url}@${commit}` : url);
+// ...existing code...
+if (memoryCache.has(cacheKey)) {
+  return memoryCache.get(cacheKey);
+}
+```
+*Implements cache key generation and lookup for backend caching.*
 
 ### Sample Output (Described)
 
