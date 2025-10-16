@@ -404,7 +404,46 @@ def _analyze_file_worker(args):
         logging.warning(f"Failed to analyze {file_path}: {e}")
         return None
 ```
+### 11. Test 
 
+This representative test demonstrates the caching behavior expected by the backend test-suite (`backend/__tests__/cache.test.js`). It verifies that a repeated analysis request for the same repository URL returns the cached result instead of calling the Python parser again.
+
+```javascript
+it('returns cached result for the same URL without calling parser again', async () => {
+  const url = 'https://github.com/testuser/testrepo';
+
+  post.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      schema: {
+        java: [],
+        python: [],
+        relations: [],
+        endpoints: [],
+        patterns: [],
+        layers: [],
+        meta: {
+          commit: 'abc123',
+          classes_found: 0,
+          files_scanned: 1,
+          languages: [],
+          system: 'test'
+        }
+      }
+    }
+  });
+
+  const first = await request(app).post('/analyze').send({ githubUrl: url });
+  expect(first.status).toBe(200);
+  expect(first.body.schema.meta).toHaveProperty('commit', 'abc123');
+  expect(post).toHaveBeenCalledTimes(1);
+
+  const second = await request(app).post('/analyze').send({ githubUrl: url });
+  expect(second.status).toBe(200);
+  expect(second.body.schema.meta).toHaveProperty('commit', 'abc123');
+  expect(post).toHaveBeenCalledTimes(1);
+});
+```
 ### Sample Output
 
 The system produces two main types of output:
@@ -412,6 +451,31 @@ The system produces two main types of output:
 **API Response:**  
 Returns a JSON schema with detected classes, fields, methods, and relationships for each language.
 
+### JSON (Example of how the application Processess)
+
+Below is a compact excerpt taken from `backend_last_schema.json` showing the expected JSON structure produced by the parser for a Java-heavy repository.
+
+```json
+{
+  "schema": {
+    "java": [
+      {
+        "class": "DiningPhilosophersMonitor",
+        "fields": ["EATING: int","HUNGRY: int","N: int","THINKING: int","state: int"],
+        "methods": ["main","putForks","startSimulation","takeForks","test"],
+        "stereotype": "class"
+      }
+    ],
+    "meta": {
+      "classes_found": 3,
+      "commit": "dc5962b13ed18e01d11854b2b17ecef4afd42a7d",
+      "files_scanned": 6,
+      "languages": ["java"],
+      "system": "Dining-Philospher-for-OS-and-Word-Ladder-for-Daa"
+    }
+  }
+}
+```
 **Frontend Render:**  
 Users submit Github Repo's Link or a prompt and receive an interactive UML diagram (SVG/PNG) with options to export or share.
 
@@ -461,7 +525,6 @@ Looking ahead, several enhancements could improve the system:
 
 UML Designer AI demonstrates a balance of static analysis rigor, practical engineering for reliability, and user-facing simplicity. The modular design and comprehensive tests make it a strong foundation for continued research or classroom use.
 
----
 
 ## 5. References
 
