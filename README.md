@@ -4,10 +4,8 @@
 > **A powerful, user-friendly platform for generating, analyzing, and visualizing UML diagrams from code or natural language prompts.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Build Status](https://img.shields.io/github/workflow/status/<your-org>/uml/main)](https://github.com/<your-org>/uml/actions)
 [![Open Issues](https://img.shields.io/github/issues/<your-org>/uml)](https://github.com/<your-org>/uml/issues)
 
----
 
 
 
@@ -82,10 +80,8 @@ Maps out the system’s architecture and deployment.
 > **A full-stack, open-source platform for generating, analyzing, and visualizing UML diagrams from code and natural language prompts.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Build Status](https://img.shields.io/github/workflow/status/<your-org>/uml/main)](https://github.com/<your-org>/uml/actions)
 [![Open Issues](https://img.shields.io/github/issues/<your-org>/uml)](https://github.com/<your-org>/uml/issues)
 
----
 
 
 ## What is UML Designer AI?
