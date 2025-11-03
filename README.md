@@ -8,9 +8,11 @@
 ## 🎥 Demo Video
 
 <p align="center">
-  <video src="Demo.mp4" controls width="100%" style="max-width: 800px;">
-    Your browser does not support the video tag.
-  </video>
+  <a href="Demo.mp4">
+    <img src="diagrams/activity_diagram.png" alt="Click to download demo video" width="600"/>
+  </a>
+  <br>
+  <i>⬆️ Click to download and watch the demo video (Demo.mp4)</i>
 </p>
 
 
