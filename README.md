@@ -7,12 +7,10 @@
 
 ## 🎥 Demo Video
 
+https://github.com/G26karthik/UML-Designer/assets/Demo.mp4
+
 <p align="center">
-  <a href="Demo.mp4">
-    <img src="diagrams/activity_diagram.png" alt="Click to download demo video" width="600"/>
-  </a>
-  <br>
-  <i>⬆️ Click to download and watch the demo video (Demo.mp4)</i>
+  <i>Application demo walkthrough</i>
 </p>
 
 
