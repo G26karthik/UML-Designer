@@ -7,11 +7,12 @@
 
 ## 🎥 Demo Video
 
-[![Watch the video](https://img.youtube.com/vi/<https://youtu.be/OkDJHNOVX2A?si=uKKew-05rTWj0yn->/hqdefault.jpg)](https://www.youtube.com/watch?v=<https://youtu.be/OkDJHNOVX2A?si=uKKew-05rTWj0yn->)
-
-
 <p align="center">
-  <i>Application demo walkthrough</i>
+  <a href="https://youtu.be/OkDJHNOVX2A">
+    <img src="https://img.youtube.com/vi/OkDJHNOVX2A/maxresdefault.jpg" alt="Watch Demo Video" width="600"/>
+  </a>
+  <br>
+  <i>🎬 Click to watch the full demo on YouTube</i>
 </p>
 
 
