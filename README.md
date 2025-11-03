@@ -7,11 +7,13 @@
 
 ## 🎥 Demo Video
 
-https://github.com/G26karthik/UML-Designer/assets/Demo.mp4
-
-[![Watch on YouTube](https://img.youtube.com/vi/OkDJHNOVX2A/0.jpg)](https://youtu.be/OkDJHNOVX2A)
-
-*Video also available on [YouTube](https://youtu.be/OkDJHNOVX2A)*
+<p align="center">
+  <a href="https://youtu.be/OkDJHNOVX2A">
+    <img src="https://img.youtube.com/vi/OkDJHNOVX2A/maxresdefault.jpg" alt="UML Designer Demo Video" width="700"/>
+  </a>
+  <br>
+  <em>🎬 Click the thumbnail above to watch the full demo on YouTube</em>
+</p>
 
 
 ## What is UML Designer AI?
