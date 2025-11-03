@@ -4,79 +4,14 @@
 > **A powerful, user-friendly platform for generating, analyzing, and visualizing UML diagrams from code or natural language prompts.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Open Issues](https://img.shields.io/github/issues/<your-org>/uml)](https://github.com/<your-org>/uml/issues)
 
-
-
-
-
----
-
-## Visual Overview
-
-UML Designer AI provides a complete visual map of your system, from user actions to backend architecture. Here’s how your codebase is represented:
-
-### 1. Class Structure
-Shows the main classes and their relationships.
+## 🎥 Demo Video
 
 <p align="center">
-	<img src="diagrams/class_diagram.png" alt="Class Diagram" width="420"/>
-	<br><i>Class Diagram: Core system classes and their connections</i>
+  <video src="Demo.mp4" controls width="100%" style="max-width: 800px;">
+    Your browser does not support the video tag.
+  </video>
 </p>
-
-### 2. Use Case Flow
-Illustrates how users interact with the system.
-
-<p align="center">
-	<img src="diagrams/usecase_diagram.png" alt="Use Case Diagram" width="420"/>
-	<br><i>Use Case Diagram: User actions and system features</i>
-</p>
-
-### 3. Activity & State
-Shows the workflow and system states during analysis and diagram generation.
-
-<div align="center" style="display:flex; gap:32px; flex-wrap:wrap; justify-content:center;">
-	<div>
-		<img src="diagrams/activity_diagram.png" alt="Activity Diagram" width="350"/>
-		<br><i>Activity Diagram: End-to-end workflow</i>
-	</div>
-	<div>
-		<img src="diagrams/state_diagram.png" alt="State Diagram" width="350"/>
-		<br><i>State Diagram: System states</i>
-	</div>
-</div>
-
-### 4. Sequence & Communication
-Depicts how components interact to process requests.
-
-<div align="center" style="display:flex; gap:32px; flex-wrap:wrap; justify-content:center;">
-	<div>
-		<img src="diagrams/sequence_diagram.png" alt="Sequence Diagram" width="350"/>
-		<br><i>Sequence Diagram: Request flow</i>
-	</div>
-	<div>
-		<img src="diagrams/communication_diagram.png" alt="Communication Diagram" width="350"/>
-		<br><i>Communication Diagram: Component messaging</i>
-	</div>
-</div>
-
-
-### 5. Component Overview
-Shows the major modules and their connections.
-
-<p align="center">
-	<img src="diagrams/component_diagram.png" alt="Component Diagram" width="350"/>
-	<br><i>Component Diagram: Major modules</i>
-</p>
-
-
----
-
-> **A full-stack, open-source platform for generating, analyzing, and visualizing UML diagrams from code and natural language prompts.**
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Open Issues](https://img.shields.io/github/issues/<your-org>/uml)](https://github.com/<your-org>/uml/issues)
-
 
 
 ## What is UML Designer AI?
@@ -263,6 +198,65 @@ uml/
 └── ...              # Project configs, docs, and scripts
 ```
 </details>
+
+---
+
+## Visual Overview
+
+UML Designer AI provides a complete visual map of your system, from user actions to backend architecture. Here's how your codebase is represented:
+
+### 1. Class Structure
+Shows the main classes and their relationships.
+
+<p align="center">
+	<img src="diagrams/class_diagram.png" alt="Class Diagram" width="420"/>
+	<br><i>Class Diagram: Core system classes and their connections</i>
+</p>
+
+### 2. Use Case Flow
+Illustrates how users interact with the system.
+
+<p align="center">
+	<img src="diagrams/usecase_diagram.png" alt="Use Case Diagram" width="420"/>
+	<br><i>Use Case Diagram: User actions and system features</i>
+</p>
+
+### 3. Activity & State
+Shows the workflow and system states during analysis and diagram generation.
+
+<div align="center" style="display:flex; gap:32px; flex-wrap:wrap; justify-content:center;">
+	<div>
+		<img src="diagrams/activity_diagram.png" alt="Activity Diagram" width="350"/>
+		<br><i>Activity Diagram: End-to-end workflow</i>
+	</div>
+	<div>
+		<img src="diagrams/state_diagram.png" alt="State Diagram" width="350"/>
+		<br><i>State Diagram: System states</i>
+	</div>
+</div>
+
+### 4. Sequence & Communication
+Depicts how components interact to process requests.
+
+<div align="center" style="display:flex; gap:32px; flex-wrap:wrap; justify-content:center;">
+	<div>
+		<img src="diagrams/sequence_diagram.png" alt="Sequence Diagram" width="350"/>
+		<br><i>Sequence Diagram: Request flow</i>
+	</div>
+	<div>
+		<img src="diagrams/communication_diagram.png" alt="Communication Diagram" width="350"/>
+		<br><i>Communication Diagram: Component messaging</i>
+	</div>
+</div>
+
+
+### 5. Component Overview
+Shows the major modules and their connections.
+
+<p align="center">
+	<img src="diagrams/component_diagram.png" alt="Component Diagram" width="350"/>
+	<br><i>Component Diagram: Major modules</i>
+</p>
 
 ---
 
