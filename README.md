@@ -7,7 +7,7 @@
 
 ## 🎥 Demo Video
 
-https://github.com/G26karthik/UML-Designer/Demo.mp4
+https://github.com/G26karthik/UML-Designer/blob/main/Demo.mp4
 
 <p align="center">
   <i>Application demo walkthrough</i>
