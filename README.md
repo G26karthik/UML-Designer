@@ -7,7 +7,7 @@
 
 ## 🎥 Demo Video
 
-[![Watch the video](https://img.youtube.com/vi/<https://youtu.be/OkDJHNOVX2A>/hqdefault.jpg)](https://www.youtube.com/watch?v=<https://youtu.be/OkDJHNOVX2A>)
+[![Watch the video](https://img.youtube.com/vi/<https://www.youtube.com/watch?v=OkDJHNOVX2A>/hqdefault.jpg)](https://www.youtube.com/watch?v=<https://www.youtube.com/watch?v=OkDJHNOVX2A>)
 
 
 <p align="center">
