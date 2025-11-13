@@ -1,0 +1,8 @@
+{
+  "diagram": "@startuml\nactor Customer\nactor Seller\nrectangle ECommerceWebsite {\n    usecase \"Browse Products\" as UC1\n    usecase \"Search Products\" as UC2\n    usecase \"Place Order\" as UC3\n    usecase \"Manage Order\" as UC4\n    usecase \"Add Product to Cart\" as UC5\n    usecase \"Checkout\" as UC6\n    usecase \"Register Account\" as UC7\n    usecase \"Login\" as UC8\n    usecase \"View Product Details\" as UC9\n}\nCustomer --> UC1\nCustomer --> UC2\nCustomer --> UC3\nCustomer --> UC4\nCustomer --> UC5\nCustomer --> UC6\nCustomer --> UC7\nCustomer --> UC8\nCustomer --> UC9\nSeller --> UC7\nUC5 .> UC6 : <<include>>\nUC3 .> UC4 : <<include>>\nUC1 .> UC9 : <<include>>\nUC2 .> UC9 : <<include>>\n@enduml",
+  "raw_diagram": "@startuml\nactor Customer\nactor Seller\nrectangle ECommerceWebsite {\n    usecase \"Browse Products\" as UC1\n    usecase \"Search Products\" as UC2\n    usecase \"Place Order\" as UC3\n    usecase \"Manage Order\" as UC4\n    usecase \"Add Product to Cart\" as UC5\n    usecase \"Checkout\" as UC6\n    usecase \"Register Account\" as UC7\n    usecase \"Login\" as UC8\n    usecase \"View Product Details\" as UC9\n}\n\nCustomer --> UC1\nCustomer --> UC2\nCustomer --> UC3\nCustomer --> UC4\nCustomer --> UC5\nCustomer --> UC6\nCustomer --> UC7\nCustomer --> UC8\nCustomer --> UC9\n\nSeller --> UC7\n\nUC5 .> UC6 : <<include>>\nUC3 .> UC4 : <<include>>\nUC1 .> UC9 : <<include>>\nUC2 .> UC9 : <<include>>\n@enduml",
+  "diagram_type": "usecase",
+  "format": "plantuml",
+  "source": "groq",
+  "model": "meta-llama/llama-4-scout-17b-16e-instruct"
+}

@@ -1,0 +1,8 @@
+{
+  "diagram": "@startuml\nactor Librarian\nactor Borrower\nrectangle LibraryManagementSystem {\n    usecase \"Register Book\" as UC1\n    usecase \"Borrow Book\" as UC2\n    usecase \"Return Book\" as UC3\n    usecase \"Search Catalog\" as UC4\n    usecase \"Manage Borrower Accounts\" as UC5\n    usecase \"Generate Reports\" as UC6\n}\nLibrarian --> UC1\nLibrarian --> UC2\nLibrarian --> UC3\nLibrarian --> UC5\nLibrarian --> UC6\nBorrower --> UC2\nBorrower --> UC3\nBorrower --> UC4\nUC2 .> UC3 : <<include>>\nUC5 .> UC2 : <<include>>\nUC6 .> UC4 : <<include>>\n@enduml",
+  "raw_diagram": "@startuml\nactor Librarian\nactor Borrower\n\nrectangle LibraryManagementSystem {\n    usecase \"Register Book\" as UC1\n    usecase \"Borrow Book\" as UC2\n    usecase \"Return Book\" as UC3\n    usecase \"Search Catalog\" as UC4\n    usecase \"Manage Borrower Accounts\" as UC5\n    usecase \"Generate Reports\" as UC6\n}\n\nLibrarian --> UC1\nLibrarian --> UC2\nLibrarian --> UC3\nLibrarian --> UC5\nLibrarian --> UC6\nBorrower --> UC2\nBorrower --> UC3\nBorrower --> UC4\n\nUC2 .> UC3 : <<include>>\nUC5 .> UC2 : <<include>>\nUC6 .> UC4 : <<include>>\n@enduml",
+  "diagram_type": "usecase",
+  "format": "plantuml",
+  "source": "groq",
+  "model": "meta-llama/llama-4-scout-17b-16e-instruct"
+}

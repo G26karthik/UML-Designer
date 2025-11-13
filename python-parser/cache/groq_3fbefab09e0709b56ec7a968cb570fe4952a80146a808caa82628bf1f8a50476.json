@@ -1,0 +1,8 @@
+{
+  "diagram": "@startuml\nactor Patient\nactor Doctor\nactor Receptionist\nrectangle ClinicSystem {\n    usecase \"Schedule Appointment\" as UC1\n    usecase \"Cancel Appointment\" as UC2\n    usecase \"Reschedule Appointment\" as UC3\n    usecase \"View Appointment Schedule\" as UC4\n    usecase \"Manage Patient Information\" as UC5\n}\nPatient --> UC1 : schedule\nPatient --> UC2 : cancel\nPatient --> UC3 : reschedule\nPatient --> UC4 : view\nDoctor --> UC1 : schedule\nDoctor --> UC3 : reschedule\nDoctor --> UC4 : view\nReceptionist --> UC1 : assist\nReceptionist --> UC2 : assist\nReceptionist --> UC3 : assist\nReceptionist --> UC4 : assist\nReceptionist --> UC5 : manage\nUC1 .> UC5 : <<include>>\nUC2 .> UC5 : <<include>>\nUC3 .> UC5 : <<include>>\n@enduml",
+  "raw_diagram": "@startuml\nactor Patient\nactor Doctor\nactor Receptionist\n\nrectangle ClinicSystem {\n    usecase \"Schedule Appointment\" as UC1\n    usecase \"Cancel Appointment\" as UC2\n    usecase \"Reschedule Appointment\" as UC3\n    usecase \"View Appointment Schedule\" as UC4\n    usecase \"Manage Patient Information\" as UC5\n}\n\nPatient --> UC1 : schedule\nPatient --> UC2 : cancel\nPatient --> UC3 : reschedule\nPatient --> UC4 : view\n\nDoctor --> UC1 : schedule\nDoctor --> UC3 : reschedule\nDoctor --> UC4 : view\n\nReceptionist --> UC1 : assist\nReceptionist --> UC2 : assist\nReceptionist --> UC3 : assist\nReceptionist --> UC4 : assist\nReceptionist --> UC5 : manage\n\nUC1 .> UC5 : <<include>>\nUC2 .> UC5 : <<include>>\nUC3 .> UC5 : <<include>>\n@enduml",
+  "diagram_type": "usecase",
+  "format": "plantuml",
+  "source": "groq",
+  "model": "meta-llama/llama-4-scout-17b-16e-instruct"
+}

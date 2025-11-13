@@ -1,0 +1,8 @@
+{
+  "diagram": "@startuml\nactor Patient\nactor Doctor\nactor Administrator\nrectangle HospitalManagementSystem {\n    usecase \"Register Patient\" as UC1\n    usecase \"Schedule Appointment\" as UC2\n    usecase \"View Medical Records\" as UC3\n    usecase \"Manage Medications\" as UC4\n    usecase \"Generate Reports\" as UC5\n    usecase \"Manage Staff\" as UC6\n}\nPatient --> UC1\nPatient --> UC3\nDoctor --> UC2\nDoctor --> UC4\nAdministrator --> UC5\nAdministrator --> UC6\nUC1 .> UC3 : <<include>>\nUC2 .> UC4 : <<include>>\nUC5 ..> UC6 : <<extend>>\n@enduml",
+  "raw_diagram": "@startuml\nactor Patient\nactor Doctor\nactor Administrator\n\nrectangle HospitalManagementSystem {\n    usecase \"Register Patient\" as UC1\n    usecase \"Schedule Appointment\" as UC2\n    usecase \"View Medical Records\" as UC3\n    usecase \"Manage Medications\" as UC4\n    usecase \"Generate Reports\" as UC5\n    usecase \"Manage Staff\" as UC6\n}\n\nPatient --> UC1\nPatient --> UC3\nDoctor --> UC2\nDoctor --> UC4\nAdministrator --> UC5\nAdministrator --> UC6\n\nUC1 .> UC3 : <<include>>\nUC2 .> UC4 : <<include>>\nUC5 ..> UC6 : <<extend>>\n@enduml",
+  "diagram_type": "usecase",
+  "format": "plantuml",
+  "source": "groq",
+  "model": "meta-llama/llama-4-scout-17b-16e-instruct"
+}

@@ -1,0 +1,8 @@
+{
+  "diagram": "@startuml\n[*] --> Available\nstate \"Checked Out\" as CheckedOut\nstate \"Reserved\" as Reserved\nstate \"Lost\" as Lost\nAvailable --> CheckedOut : borrow\nCheckedOut --> Available : return\nCheckedOut --> Reserved : requestReserve\nAvailable --> Reserved : reserve\nReserved --> Available : cancelReserve\nCheckedOut --> Lost : reportLost\nLost --> [*] : remove\n@enduml",
+  "raw_diagram": "@startuml\n[*] --> Available\nstate \"Checked Out\" as CheckedOut\nstate \"Reserved\" as Reserved\nstate \"Lost\" as Lost\nAvailable --> CheckedOut : borrow\nCheckedOut --> Available : return\nCheckedOut --> Reserved : requestReserve\nAvailable --> Reserved : reserve\nReserved --> Available : cancelReserve\nCheckedOut --> Lost : reportLost\nLost --> [*] : remove\n@enduml",
+  "diagram_type": "state",
+  "format": "plantuml",
+  "source": "groq",
+  "model": "meta-llama/llama-4-scout-17b-16e-instruct"
+}

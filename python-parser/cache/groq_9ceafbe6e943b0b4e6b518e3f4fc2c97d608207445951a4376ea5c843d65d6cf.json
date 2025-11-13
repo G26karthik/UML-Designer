@@ -1,0 +1,10 @@
+{
+  "diagram": "@startuml\nclass User {\n  +UUID id\n  +string email\n}\nclass Admin\nUser <|-- Admin\n@enduml",
+  "raw_diagram": "@startuml\nclass User {\n  +UUID id\n  +string email\n}\nclass Admin\nUser <|-- Admin\n@enduml",
+  "diagram_type": "class",
+  "format": "plantuml",
+  "source": "stub",
+  "warnings": [
+    "LLM call skipped because STUB_LLM is enabled."
+  ]
+}
